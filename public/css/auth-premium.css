@@ -1,0 +1,154 @@
+/* === Fondo global premium === */
+
+.auth-premium-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  
+    background: radial-gradient(
+        circle at top,
+        rgba(139,71,137, 0.45),
+        rgba(69,40,65, 0.85)
+    ),
+    url("/img/kuali/auth-pattern.png");
+    background-size: 480px;
+    background-repeat: repeat;
+    background-blend-mode: soft-light;
+  
+    backdrop-filter: blur(6px);
+  }
+  
+  
+  /* === CARD PREMIUM PRINCIPAL === */
+  
+  .auth-premium-card {
+    width: 100%;
+    max-width: 1050px;
+    height: 650px;
+  
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  
+    background: rgba(255,255,255,0.06);
+    border-radius: 32px;
+    overflow: hidden;
+  
+    box-shadow: 0 25px 70px rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  
+  
+  /* === Columna Izquierda: Formulario === */
+  
+  .auth-premium-form {
+    background: rgba(255,255,255,0.92);
+    padding: 3rem 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .auth-premium-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: .4rem;
+    color: var(--kuali-purple);
+  }
+  
+  .auth-premium-subtitle {
+    font-size: .9rem;
+    color: var(--kuali-text-muted);
+    margin-bottom: 1.8rem;
+  }
+  
+  
+  /* Inputs */
+  .p-field {
+    margin-bottom: 1.1rem;
+  }
+  
+  .p-label {
+    display: block;
+    font-size: .8rem;
+    color: var(--kuali-text-muted);
+    margin-bottom: .35rem;
+  }
+  
+  .p-input {
+    width: 100%;
+    padding: .8rem 1rem;
+    border: 1px solid var(--kuali-border);
+    border-radius: 12px;
+    background: #fff;
+    font-size: .95rem;
+    transition: .2s;
+  }
+  
+  .p-input:focus {
+    border-color: var(--kuali-purple);
+    box-shadow: 0 0 0 3px rgba(139,71,137,.15);
+    outline: none;
+  }
+  
+  
+  /* Botón principal */
+  .p-btn-primary {
+    background: var(--kuali-purple);
+    color: #fff;
+    padding: .9rem;
+    width: 100%;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: .2s;
+  }
+  
+  .p-btn-primary:hover {
+    background: var(--kuali-purple-dark);
+    box-shadow: 0 12px 35px rgba(139,71,137,0.35);
+  }
+  
+  
+  /* === Columna Derecha: Imagen === */
+  
+  .auth-premium-image {
+    position: relative;
+    background-image:
+      linear-gradient(135deg, rgba(139,71,137,0.60), rgba(184,139,183,0.70)),
+      url("/img/kuali/auth-food-hero.jpg");
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .auth-premium-footer {
+    position: absolute;
+    bottom: 1.2rem;
+    width: 100%;
+    text-align: center;
+    color: #ffffffd0;
+    font-size: .75rem;
+  }
+  
+  
+  /* === Responsivo === */
+  
+  @media (max-width: 900px) {
+    .auth-premium-card {
+      grid-template-columns: 1fr;
+      height: auto;
+    }
+  
+    .auth-premium-image {
+      height: 200px;
+    }
+  
+    .auth-premium-form {
+      padding: 2rem 1.4rem;
+    }
+  }
+  
+  

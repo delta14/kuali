@@ -1,0 +1,233 @@
+/* public/css/auth.css */
+
+/* ===== Paleta oficial KUALI (Purple Gourmet) ===== */
+:root {
+    --kuali-purple: #6A3FA0;          /* principal */
+    --kuali-purple-deep: #34204F;     /* textos fuertes / dark */
+    --kuali-lavender-light: #CBB7E8;  /* fondo claro */
+    --kuali-lavender-ultra: #E7DDF4;  /* fondo más suave */
+    --kuali-highlight: #7C4FCC;       /* acentos */
+    --kuali-input-shadow: rgba(52, 32, 79, 0.20);
+    --kuali-text-main: #34204F;
+    --kuali-text-muted: #6F63A7;
+  }
+  
+  /* ===== Layout general: pantalla dividida ===== */
+  
+  .auth-page {
+    min-height: 100vh;
+    display: flex;
+    background: var(--kuali-lavender-ultra);
+    font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  
+  /* Panel izquierdo (logo + form) */
+  .auth-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.8rem 2.2rem;
+    background: var(--kuali-lavender-ultra);
+  }
+  
+  .auth-left-inner {
+    width: 100%;
+    max-width: 390px;
+    text-align: center; /* centramos todo el contenido */
+  }
+  
+  /* ===== Logo KUALI centrado ===== */
+  
+  .auth-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* centrado horizontal */
+    gap: .45rem;
+    margin-bottom: 2rem;
+  }
+  
+  .auth-logo-mark {
+    width: 60px;
+    height: 60px;
+    border-radius: 20px;
+    background: var(--kuali-purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 800;
+    font-size: 1.8rem;
+  }
+  
+  .auth-logo-text {
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: .2em;
+    color: var(--kuali-purple-deep);
+  }
+  
+  /* ===== Títulos (Crea una cuenta / Inicia sesión) ===== */
+  
+  .auth-heading {
+    font-size: 2rem;
+    line-height: 1.15;
+    font-weight: 700;
+    color: var(--kuali-text-main);
+    margin-bottom: .55rem;
+  }
+  
+  .auth-subheading {
+    font-size: .95rem;
+    color: var(--kuali-text-muted);
+    margin-bottom: 1.9rem;
+  }
+  
+  /* ===== Campos ===== */
+  
+  .auth-field {
+    margin-bottom: .95rem;
+  }
+  
+  .auth-label {
+    display: none;
+  }
+  
+  .auth-input {
+    width: 100%;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    padding: 0.95rem 1.3rem;
+    font-size: .95rem;
+    background: #ffffff;
+    box-shadow: 0 10px 26px var(--kuali-input-shadow);
+    outline: none;
+    color: #27223f;
+  }
+  
+  .auth-input::placeholder {
+    color: #BFBAC8;
+  }
+  
+  /* ===== Botón principal ===== */
+  
+  .auth-primary-btn {
+    width: 100%;
+    border-radius: 999px;
+    border: none;
+    margin-top: .6rem;
+    padding: .95rem 1.3rem;
+    font-size: .96rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #fff;
+    background: linear-gradient(90deg, var(--kuali-purple-deep), var(--kuali-purple));
+    box-shadow: 0 16px 36px rgba(52, 32, 79, 0.45);
+    transition: transform .12s ease-out, box-shadow .12s ease-out;
+  }
+  
+  .auth-primary-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 20px 46px rgba(52, 32, 79, 0.6);
+  }
+  
+  .auth-primary-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 12px 30px rgba(52, 32, 79, 0.5);
+  }
+  
+  /* ===== Texto inferior (link login/registro) ===== */
+  
+  .auth-bottom-text {
+    margin-top: 1.4rem;
+    font-size: .8rem;
+    color: #4A4750;
+  }
+  
+  .auth-bottom-text a {
+    color: var(--kuali-purple-deep);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  
+  .auth-bottom-text a:hover {
+    text-decoration: underline;
+  }
+  
+  /* ===== Errores ===== */
+  
+  .auth-errors {
+    margin-bottom: .9rem;
+    font-size: .8rem;
+    color: #D85757;
+  }
+  
+  /* ===== Panel derecho: foto + copy ===== */
+  
+  .auth-right {
+    flex: 1;
+    position: relative;
+    background-image: url("/img/kuali/auth-cake.jpg");
+    background-size: cover;
+    background-position: center;
+  }
+  
+  /* overlay suave para unificar tono */
+  .auth-right::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(203, 183, 232, 0.08),
+      rgba(52, 32, 79, 0.10)
+    );
+  }
+  
+  /* Copy "Digitaliza tu sabor" – centrado abajo, tipografía Manrope más delgada */
+  .auth-right-copy {
+    position: absolute;
+    left: 50%;
+    bottom: 12%;
+    transform: translateX(-50%);
+    max-width: 420px;
+    text-align: center;
+    z-index: 1;
+    font-family: "Manrope", system-ui, sans-serif;
+  }
+  
+  .auth-right-title {
+    font-size: 1.9rem;
+    font-weight: 600;          /* más delgado que el H1 izquierdo */
+    color: var(--kuali-lavender-ultra);
+    margin: 0 0 .6rem;
+  }
+  
+  .auth-right-text {
+    font-size: .95rem;
+    line-height: 1.45;
+    color: #ffffff;
+  }
+  
+  /* ===== Responsive ===== */
+  
+  @media (max-width: 900px) {
+    .auth-page {
+      flex-direction: column;
+    }
+  
+    .auth-right {
+      display: none;
+    }
+  
+    .auth-left {
+      min-height: 100vh;
+      padding: 2.4rem 1.8rem;
+      justify-content: center;
+    }
+  
+    .auth-left-inner {
+      max-width: 100%;
+    }
+  }
+  

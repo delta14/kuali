@@ -1,0 +1,2536 @@
+/* ===== Kuali css ===== */
+
+:root {
+    --kuali-primary: #4f2c78;
+    --kuali-primary-dark: #2d1544;
+    --kuali-primary-light: #7a56a5;
+
+    --kuali-bg: #14111f;
+    --kuali-bg-soft: #1b1628;
+    --kuali-bg-card: #221b33;
+    --kuali-bg-sidebar: #3f2d76;
+
+    --kuali-paper: #2b233b;
+
+    --kuali-text: #f7f3ff; /* texto sobre cards oscuros */
+    --kuali-text-muted: #a79bc7;
+
+    --kuali-border-subtle: rgba(255, 255, 255, 0.04);
+
+    --kuali-success: #56c5a1;
+
+    --k-radius-lg: 22px;
+    --k-radius-md: 16px;
+    --k-radius-pill: 999px;
+
+    --k-shadow-soft: 0 20px 40px rgba(15, 23, 42, 0.22);
+}
+
+/* RESET / base */
+
+.k-body {
+    margin: 0;
+    background: linear-gradient(180deg, #f7f5fb, #ffffff);
+    color: #1e1b22; /* texto por defecto en zonas claras */
+    font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+}
+
+/* ===========================
+   LAYOUT
+   =========================== */
+
+.k-app {
+    min-height: 100vh;
+    display: block;
+    grid-template-columns: 88px minmax(0, 1fr);
+    background: linear-gradient(180deg, #f7f5fb, #ffffff);
+}
+
+/* Cuando está colapsado (por botón) */
+.k-app.k-app--collapsed {
+    grid-template-columns: 72px minmax(0, 1fr);
+}
+
+/* ===== SIDEBAR ===== */
+.k-sidebar {
+    background: var(--kuali-bg-card); /* #221b33 */
+    padding: 1.4rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    color: #fff;
+    box-shadow: var(--k-shadow-soft);
+    border-radius: 0 28px 28px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh; /* toma toda la pantalla */
+    overflow-y: auto; /* scroll interno si hace falta */
+    z-index: 999;
+    width: 80px;
+}
+
+/* Logo arriba */
+.k-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.k-logo-img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    padding: 6px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.32);
+    display: block;
+}
+
+/* ===== MENU SIDEBAR ELEGANTE ===== */
+
+.k-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 3rem;
+}
+
+/* Cada item del menú (no activo) */
+.k-menu-item {
+    position: relative; /* necesario para el tooltip */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 56px;
+    color: #f5f1ff;
+    text-decoration: none;
+}
+
+.k-menu-item .k-menu-label {
+    display: none;
+}
+
+/* ===== Tooltip (data-tooltip) ===== */
+.k-menu-item[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 10px;
+
+    background: rgba(18, 18, 32, 0.95);
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    transform-origin: left center;
+}
+
+/* Flechita del tooltip */
+.k-menu-item[data-tooltip]::before {
+    content: "";
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 4px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent transparent rgba(18, 18, 32, 0.95);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+/* Mostrar tooltip al hover (solo escritorio) */
+@media (hover: hover) {
+    .k-menu-item[data-tooltip]:hover::after,
+    .k-menu-item[data-tooltip]:hover::before {
+        opacity: 1;
+    }
+
+    .k-menu-item[data-tooltip]:hover::after {
+        transform: translateY(-50%) translateX(2px);
+    }
+}
+
+/* Iconos más grandes */
+.k-menu-icon i {
+    font-size: 26px;
+    opacity: 0.55;
+    transition: opacity 0.16s ease-out, transform 0.12s ease-out;
+}
+
+/* Hover delicado (solo icono sube un poco) */
+.k-menu-item:hover .k-menu-icon i {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+/* ===== ITEM ACTIVO (cuadro) ===== */
+
+.k-menu-item--active {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    padding: 0.7rem 0.2rem;
+    color: #fff;
+}
+
+.k-menu-item--active .k-menu-icon i {
+    color: #fff;
+    opacity: 1;
+}
+
+.k-menu-item--active .k-menu-label {
+    color: #fff;
+}
+
+/* ===== FOOTER (cerrar sesión siempre abajo) ===== */
+
+.k-sidebar-footer {
+    margin-top: auto;
+    width: 100%;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.85);
+    text-align: center;
+}
+
+.k-user-name {
+    max-width: 100%;
+    word-break: break-word;
+}
+
+.k-logout-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    border-radius: 999px;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.82rem;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.28);
+    color: #fff;
+    transition: background 0.15s ease-out, transform 0.08s ease-out;
+}
+
+.k-logout-btn i {
+    font-size: 1.1rem;
+}
+
+.k-logout-btn:hover {
+    background: rgba(0, 0, 0, 0.4);
+    transform: translateY(-1px);
+}
+
+/* ===== MAIN ===== */
+
+.k-main {
+    padding: 1.8rem 2rem;
+    display: flex;
+    background: linear-gradient(180deg, #f7f5fb, #ffffff);
+    color: #1e1b22;
+    margin-left: 100px; /* mismo ancho del sidebar */
+    padding: 2rem;
+    margin-left: 80px;
+}
+
+.k-main-inner {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+}
+
+/* Header */
+
+.k-main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.8rem;
+}
+
+.k-main-title {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1e1b22;
+}
+
+.k-main-subtitle {
+    margin: 0.2rem 0 0;
+    font-size: 0.85rem;
+    color: #7b7f99;
+}
+
+.k-main-cta {
+    border-radius: 999px;
+    border: none;
+    padding: 0.7rem 1.6rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--kuali-primary);
+    color: #fff;
+    box-shadow: 0 12px 30px rgba(79, 44, 120, 0.45);
+}
+
+/* GRID principal: KPIs + hero pastel */
+
+.k-main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.9fr);
+    gap: 1.4rem;
+}
+
+/* ===== KPIs ===== */
+
+.k-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.k-kpi-card {
+    background: var(--kuali-bg-card);
+    border-radius: var(--k-radius-md);
+    padding: 1rem 1.1rem;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+    color: var(--kuali-text);
+}
+
+.k-kpi-label {
+    font-size: 0.75rem;
+    color: var(--kuali-text-muted);
+}
+
+.k-kpi-value {
+    display: block;
+    margin-top: 0.4rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.k-kpi-helper {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.78rem;
+    color: var(--kuali-text-muted);
+}
+
+/* ===== HERO pastel ===== */
+
+.k-hero-card {
+    position: relative;
+    background: radial-gradient(circle at top, #5d3b95, #18101f);
+    border-radius: var(--k-radius-lg);
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: 1fr;
+    min-height: 220px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
+    color: #fff;
+}
+
+.k-hero-text {
+    position: relative;
+    z-index: 1;
+    padding: 1.3rem 1.4rem;
+    max-width: 260px;
+}
+
+.k-hero-text h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.2rem;
+}
+
+.k-hero-text p {
+    margin: 0;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Imagen del pastel como background */
+.k-hero-image {
+    position: absolute;
+    inset: 0;
+    background-image: url("/img/kuali/dashboard-cake.jpg");
+    background-size: cover;
+    background-position: center right;
+    opacity: 0.95;
+}
+
+/* degradado para lectura */
+.k-hero-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        120deg,
+        rgba(20, 9, 40, 0.8),
+        rgba(20, 9, 40, 0.15)
+    );
+}
+
+/* ===========================
+   SECCIONES INFERIORES
+   =========================== */
+
+.k-section {
+    margin-top: 1.8rem;
+}
+
+.k-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.9rem;
+}
+
+.k-section-header h2 {
+    margin: 0;
+    font-size: 1rem;
+    color: #1e1b22;
+}
+
+.k-link {
+    font-size: 0.8rem;
+    color: #7b7f99;
+    text-decoration: none;
+}
+
+.k-link:hover {
+    text-decoration: underline;
+}
+
+/* Pedido reciente */
+
+.k-recent-card {
+    background: var(--kuali-bg-card);
+    border-radius: var(--k-radius-md);
+    padding: 0.9rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+    color: var(--kuali-text);
+}
+
+.k-recent-info {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.k-recent-thumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: #cbb7e8;
+    background-image: url("/img/kuali/sample-dish.jpg");
+    background-size: cover;
+    background-position: center;
+}
+
+.k-recent-title {
+    margin: 0 0 0.1rem;
+    font-size: 0.9rem;
+}
+
+.k-recent-subtitle {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--kuali-text-muted);
+}
+
+.k-recent-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.k-recent-time {
+    font-size: 0.82rem;
+    color: #fff;
+}
+
+/* Pills */
+
+.k-pill {
+    border-radius: var(--k-radius-pill);
+    padding: 0.2rem 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.k-pill--success {
+    background: rgba(86, 197, 161, 0.15);
+    color: var(--kuali-success);
+}
+
+/* ====================================
+   SUPERADMIN · LISTADO DE COMERCIOS
+   ==================================== */
+
+.k-page-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.1rem;
+}
+
+.k-page-toolbar-title {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #1e1b22;
+}
+
+.k-page-toolbar-subtitle {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: #7b7f99;
+}
+
+/* Card que envuelve la tabla */
+.k-table-card {
+    background: #ffffff; /* fondo blanco */
+    border-radius: var(--k-radius-lg);
+    padding: 1.2rem 1.3rem 1.4rem;
+
+    /* borde sutil */
+    border: 1px solid rgba(34, 27, 51, 0.12); /* color derivado del morado */
+
+    /* sombra gourmet */
+    box-shadow: 0 8px 14px rgba(34, 27, 51, 0.12),
+        0 18px 38px rgba(34, 27, 51, 0.18);
+    position: relative;
+    overflow: visible;
+}
+
+/* Barra superior: buscador + total */
+.k-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.9rem;
+}
+
+.k-table-meta {
+    font-size: 0.8rem;
+    color: var(--kuali-text-muted);
+}
+
+/* Buscador */
+.k-table-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 260px;
+    width: 100%;
+}
+
+.k-table-search-input {
+    flex: 1;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(15, 9, 28, 0.85);
+    padding: 0.45rem 0.9rem;
+    font-size: 0.85rem;
+    color: var(--kuali-text);
+    outline: none;
+    transition: border-color 0.16s ease-out, box-shadow 0.16s ease-out;
+}
+
+.k-table-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.k-table-search-input:focus {
+    border-color: var(--kuali-primary-light);
+    box-shadow: 0 0 0 2px rgba(122, 86, 165, 0.4);
+}
+
+/* Botón de limpiar (opcional) */
+.k-table-search-clear {
+    border: none;
+    background: transparent;
+    color: var(--kuali-text-muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+/* Tabla */
+.k-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+}
+
+.k-table thead tr {
+    text-align: left;
+    color: var(--kuali-text-muted);
+    font-weight: 500;
+    color: #3a2c55;
+}
+
+.k-table th,
+.k-table td {
+    padding: 0.6rem 0.75rem;
+}
+
+.k-table tbody tr {
+    border-top: 1px solid var(--kuali-border-subtle);
+    transition: background 0.12s ease-out, transform 0.06s ease-out;
+}
+
+.k-table tbody tr:hover {
+    background: rgba(34, 27, 51, 0.06);
+    transform: translateY(-1px);
+}
+
+/* ========== TABLAS COMPACTAS (Mesas) ========== */
+
+.k-table--compact th,
+.k-table--compact td {
+    padding-top: 0.55rem; /* antes seguramente ~1.2rem */
+    padding-bottom: 0.55rem;
+}
+
+/* Si usas rows con <tr>, esto reduce el alto visual */
+.k-table--compact tr + tr {
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Si tienes la imagen del QR dentro de la tabla, la hacemos un poco más pequeña */
+.k-table--compact img {
+    max-width: 90px; /* antes parece de ~130px */
+    height: auto;
+}
+
+/* Badge para slug / info */
+.k-badge-soft {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    background: rgba(104, 76, 165, 0.4);
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* Acciones */
+.k-table-actions {
+    display: flex;
+    gap: 0.45rem;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.k-link-ghost {
+    font-size: 0.78rem;
+    padding: 0.32rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--kuali-text-muted);
+    text-decoration: none;
+    transition: background 0.15s ease-out, color 0.15s ease-out,
+        border-color 0.15s ease-out;
+}
+
+.k-link-ghost:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ===========================
+   RESPONSIVE
+   =========================== */
+
+@media (max-width: 1024px) {
+    .k-app {
+        grid-template-columns: 72px minmax(0, 1fr);
+    }
+
+    .k-sidebar {
+        width: 72px;
+        padding-inline: 0.6rem;
+    }
+
+    .k-sidebar-header {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .k-menu-item {
+        justify-content: center;
+    }
+
+    .k-menu-label {
+        display: none;
+    }
+
+    .k-sidebar-footer {
+        align-items: center;
+        text-align: center;
+    }
+}
+
+/* Tabla + layout responsive en móvil */
+@media (max-width: 768px) {
+    .k-app {
+        grid-template-columns: 1fr;
+    }
+
+    .k-sidebar {
+        position: static;
+        height: auto;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.8rem 1rem;
+        border-radius: 0 0 18px 18px;
+    }
+
+    .k-menu {
+        flex-direction: row;
+        margin-top: 0;
+    }
+
+    .k-sidebar-footer {
+        display: none;
+    }
+
+    .k-main {
+        padding: 1.1rem 1rem 1.6rem;
+    }
+
+    .k-main-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .k-main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .k-kpi-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .k-hero-card {
+        min-height: 200px;
+    }
+
+    .k-recent-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .k-recent-meta {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .k-table-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .k-table-card {
+        padding-inline: 0.8rem;
+    }
+
+    .k-table thead {
+        display: none;
+    }
+
+    .k-table tbody tr {
+        display: block;
+        padding: 0.5rem 0;
+    }
+
+    .k-table td {
+        display: block;
+        padding: 0.3rem 0;
+    }
+
+    .k-table td:first-child {
+        font-weight: 600;
+    }
+
+    .k-table td[data-label]::before {
+        content: attr(data-label);
+        display: inline-block;
+        min-width: 90px;
+        font-size: 0.75rem;
+        color: var(--kuali-text-muted);
+        margin-right: 0.3rem;
+    }
+
+    .k-table-actions {
+        margin-top: 0.3rem;
+    }
+}
+
+/* ===========================
+   MODALES KUALI
+   =========================== */
+
+.k-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.k-modal--open {
+    display: flex;
+}
+
+.k-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(4, 0, 12, 0.65);
+    backdrop-filter: blur(4px);
+}
+
+.k-modal__dialog {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 26px 70px rgba(15, 23, 42, 0.35);
+    overflow: hidden;
+    color: #1e1b22;
+}
+
+.k-modal__header {
+    padding: 1.2rem 1.6rem;
+    border-bottom: 1px solid #eef0f6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.k-modal__header h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.k-modal__close {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.3rem;
+    line-height: 1;
+    color: #a0a4b8;
+}
+
+.k-modal__body {
+    padding: 1.2rem 1.6rem 1rem;
+    background: #ffffff;
+}
+
+.k-modal__footer {
+    padding: 1rem 1.6rem 1.2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    border-top: 1px solid #eef0f6;
+    background: #fafbff;
+}
+
+/* Botones dentro del modal */
+
+.k-btn-primary {
+    border-radius: 999px;
+    border: none;
+    padding: 0.7rem 1.4rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--kuali-primary);
+    color: #fff;
+    box-shadow: 0 12px 28px rgba(79, 44, 120, 0.45);
+}
+
+.k-btn-secondary {
+    border-radius: 999px;
+    border: 1px solid #d4d7e5;
+    padding: 0.7rem 1.4rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: #ffffff;
+    color: #4b4f67;
+}
+
+/* Campos dentro del modal */
+
+.k-modal__body .k-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.k-modal__body .k-field + .k-field {
+    margin-top: 0.8rem;
+}
+
+.k-modal__body .k-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.k-modal__body .k-input {
+    border-radius: 999px;
+    border: 1px solid #d1d5e5;
+    background: #f9fafc;
+    padding: 0.65rem 1rem;
+    font-size: 0.88rem;
+    color: #111827;
+    outline: none;
+    transition: border-color 0.18s ease-out, box-shadow 0.18s ease-out,
+        background-color 0.18s ease-out;
+}
+
+.k-modal__body .k-input:focus {
+    background: #eef2ff;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.25);
+}
+
+.k-modal__body .k-input::placeholder {
+    color: #a1a5b7;
+}
+
+/* ===== ESTADOS: éxito / error (opcional) ===== */
+
+/* éxito */
+.k-modal__body .k-field--success .k-input,
+.k-modal__body .k-input--success {
+    background: #ecfdf5;
+    border-color: #22c55e;
+}
+
+.k-modal__body .k-field--success .k-input:focus,
+.k-modal__body .k-input--success:focus {
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+}
+
+.k-modal__body .k-field--success .k-field-message {
+    color: #16a34a;
+}
+
+/* error */
+.k-modal__body .k-field--error .k-input,
+.k-modal__body .k-input--error {
+    background: #fef2f2;
+    border-color: #f97373;
+}
+
+.k-modal__body .k-field--error .k-input:focus,
+.k-modal__body .k-input--error:focus {
+    box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.25);
+}
+
+.k-modal__body .k-field--error .k-field-message {
+    color: #dc2626;
+}
+
+/* mensaje bajo el input (tipo "No user found") */
+.k-modal__body .k-field-message {
+    font-size: 0.74rem;
+    margin-left: 0.2rem;
+}
+
+/* disabled */
+.k-modal__body .k-input:disabled {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Tabs del wizard del modal Editar */
+
+.k-tabs {
+    padding: 0 1.6rem;
+    padding-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 1px solid #eef0f6;
+    background: #ffffff;
+}
+
+.k-tabs__tab {
+    border: none;
+    background: transparent;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    color: #6b7280;
+}
+
+.k-tabs__tab--active {
+    background: rgba(79, 44, 120, 0.08);
+    color: var(--kuali-primary-dark);
+}
+
+/* Paneles de tab */
+
+.k-tabs__panel {
+    display: none;
+}
+
+.k-tabs__panel--active {
+    display: block;
+}
+
+/* ===========================
+   TOASTS (mensajes tipo card)
+   =========================== */
+.k-toast-stack {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    z-index: 1200;
+}
+
+.k-toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-width: 260px;
+    max-width: 360px;
+    padding: 0.75rem 1rem;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);
+    color: #111827;
+    transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+
+.k-toast__icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.k-toast__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    font-size: 0.82rem;
+}
+
+.k-toast__content strong {
+    font-size: 0.86rem;
+}
+
+.k-toast__close {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-left: auto;
+    color: #9ca3af;
+}
+
+/* variantes */
+.k-toast--success .k-toast__icon {
+    background: rgba(56, 189, 148, 0.12);
+    color: #059669;
+}
+.k-toast--error .k-toast__icon {
+    background: rgba(248, 113, 113, 0.12);
+    color: #dc2626;
+}
+
+/* ocultar */
+.k-toast--hide {
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+}
+
+.k-modal__dialog--lg {
+    width: 90%;
+    max-width: 1100px; /* ANCHO PRO */
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 14px;
+}
+
+/* Botón de logout abajo mantiene el mismo estilo */
+.k-logout-btn {
+    position: relative;
+}
+
+/* === Tooltips usando data-tooltip === */
+.k-menu-item[data-tooltip]::after,
+.k-logout-btn[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 10px;
+
+    background: rgba(18, 18, 32, 0.95);
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    transform-origin: left center;
+}
+
+.k-menu-item[data-tooltip]::before,
+.k-logout-btn[data-tooltip]::before {
+    content: "";
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 4px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent transparent rgba(18, 18, 32, 0.95);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+/* Solo en dispositivos con hover (desktop) mostramos tooltip */
+@media (hover: hover) {
+    .k-menu-item[data-tooltip]:hover::after,
+    .k-menu-item[data-tooltip]:hover::before,
+    .k-logout-btn[data-tooltip]:hover::after,
+    .k-logout-btn[data-tooltip]:hover::before {
+        opacity: 1;
+    }
+
+    .k-menu-item[data-tooltip]:hover::after,
+    .k-logout-btn[data-tooltip]:hover::after {
+        transform: translateY(-50%) translateX(2px);
+    }
+}
+
+.k-order-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    margin-left: 0.35rem;
+}
+
+.k-order-badge--counter {
+    background: #f97316;
+    color: #fff;
+}
+
+.k-order-badge--qr {
+    background: #6366f1;
+    color: #fff;
+}
+
+/* Toolbar específico de pedidos */
+.k-page-toolbar--orders {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.k-orders-toolbar-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+/* Lado derecho: botón arriba, tabs abajo alineados a la derecha */
+.k-orders-toolbar-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.9rem;
+}
+
+/* Botón "Nuevo pedido" estilo Kuali */
+.k-orders-new-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #a855f7, #6366f1);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: 0 14px 30px rgba(88, 28, 135, 0.35);
+    text-decoration: none;
+}
+
+.k-orders-new-btn i {
+    font-size: 1rem;
+}
+
+.k-orders-new-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 18px 38px rgba(88, 28, 135, 0.45);
+}
+
+/* ====== POS – Tomar pedido en mostrador (Kuali) ====== */
+
+.k-pos {
+    padding-top: 1.5rem;
+}
+
+.k-pos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 1.2rem;
+}
+
+.k-pos-title {
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: #1f1238;
+}
+
+.k-pos-subtitle {
+    font-size: 0.9rem;
+    color: #7b6fa7;
+}
+
+/* Layout 2 columnas */
+.k-pos-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2.1fr) minmax(280px, 1fr);
+    gap: 1.2rem;
+}
+
+/* Catálogo */
+.k-pos-catalog {
+    background: #f7f4ff;
+    border-radius: 24px;
+    padding: 1rem 1.1rem 1.2rem;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+}
+
+.k-pos-search-row {
+    margin-bottom: 0.75rem;
+}
+
+.k-pos-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    background: #ffffff;
+    padding: 0.5rem 0.9rem;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.k-pos-search i {
+    font-size: 1.05rem;
+    color: #c4b5fd;
+}
+
+.k-pos-search input {
+    border: none;
+    outline: none;
+    flex: 1;
+    background: transparent;
+    font-size: 0.9rem;
+    color: #1f1238;
+}
+
+.k-pos-search input::placeholder {
+    color: #a5a0c5;
+}
+
+/* Categorías */
+.k-pos-cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-bottom: 0.75rem;
+}
+
+.k-pos-cat-pill {
+    border: none;
+    border-radius: 999px;
+    padding: 0.3rem 0.9rem;
+    font-size: 0.8rem;
+    background: #ede9fe;
+    color: #5b21b6;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.k-pos-cat-pill.is-active {
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: #ffffff;
+    box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
+}
+
+/* Productos */
+.k-pos-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.8rem;
+}
+
+.k-pos-product-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 0.75rem 0.8rem;
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.k-pos-product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+}
+
+.k-pos-product-main {
+    margin-bottom: 0.4rem;
+}
+
+.k-pos-product-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1f1238;
+    margin-bottom: 0.15rem;
+}
+
+.k-pos-product-desc {
+    font-size: 0.78rem;
+    color: #7b6fa7;
+    line-height: 1.3;
+}
+
+.k-pos-product-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.4rem;
+}
+
+.k-pos-product-price {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #7c3aed;
+}
+
+.k-pos-product-add-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(124, 58, 237, 0.4);
+}
+
+/* Carrito */
+.k-pos-cart {
+    background: #0f172a;
+    border-radius: 24px;
+    padding: 1rem 1.1rem 1.2rem;
+    color: #e5e7eb;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.7);
+    display: flex;
+    flex-direction: column;
+}
+
+.k-pos-cart-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.k-pos-cart-meta {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-bottom: 0.7rem;
+}
+
+.k-pos-cart-list {
+    flex: 1;
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 0.3rem;
+    margin-bottom: 0.8rem;
+}
+
+.k-pos-cart-empty-text {
+    font-size: 0.82rem;
+    color: #9ca3af;
+}
+
+.k-pos-cart-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) auto auto;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.k-pos-cart-item-main {
+    min-width: 0;
+}
+
+.k-pos-cart-item-name {
+    font-size: 0.86rem;
+    font-weight: 500;
+}
+
+.k-pos-cart-item-price {
+    font-size: 0.78rem;
+    color: #9ca3af;
+}
+
+.k-pos-cart-item-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(15, 23, 42, 0.8);
+    padding: 0.18rem 0.4rem;
+    border-radius: 999px;
+}
+
+.k-pos-qty-btn {
+    border: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: #111827;
+    color: #e5e7eb;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.k-pos-qty-value {
+    font-size: 0.8rem;
+    min-width: 16px;
+    text-align: center;
+}
+
+.k-pos-cart-item-total {
+    font-size: 0.86rem;
+    font-weight: 600;
+    text-align: right;
+}
+
+/* Summary */
+.k-pos-cart-summary {
+    border-top: 1px dashed rgba(148, 163, 184, 0.6);
+    padding-top: 0.7rem;
+}
+
+.k-pos-cart-summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+    font-size: 0.9rem;
+}
+
+.k-pos-cart-summary-row strong {
+    font-size: 1rem;
+}
+
+/* Campos */
+.k-pos-cart-form {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.7rem;
+}
+
+.k-pos-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.k-pos-label {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.k-pos-input {
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    background: #020617;
+    color: #e5e7eb;
+    font-size: 0.82rem;
+    padding: 0.35rem 0.5rem;
+}
+
+.k-pos-input::placeholder {
+    color: #6b7280;
+}
+
+/* Botón crear pedido */
+.k-pos-submit-btn {
+    width: 100%;
+    border: none;
+    border-radius: 999px;
+    padding: 0.55rem 0.9rem;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 16px 36px rgba(124, 58, 237, 0.5);
+}
+
+/* Mensajes */
+.k-pos-message {
+    margin-top: 0.45rem;
+    font-size: 0.8rem;
+}
+
+.k-pos-message--success {
+    color: #bbf7d0;
+}
+
+.k-pos-message--error {
+    color: #fecaca;
+}
+
+/* Responsive */
+@media (max-width: 980px) {
+    .k-pos-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .k-pos-cart {
+        margin-top: 1rem;
+    }
+}
+/* Thumbnail de producto en POS */
+.k-pos-product-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 0.75rem 0.75rem 0.8rem;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.k-pos-product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 22px 50px rgba(15, 23, 42, 0.14);
+}
+
+.k-pos-product-thumb {
+    width: 100%;
+    height: 120px;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 0.55rem;
+    background: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.k-pos-product-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.k-pos-product-thumb-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    color: #9ca3af;
+}
+
+/* Ajustes menores de texto para que quepa con la foto */
+.k-pos-product-main {
+    flex: 1;
+    margin-bottom: 0.35rem;
+}
+
+.k-pos-product-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1f1238;
+    margin-bottom: 0.15rem;
+}
+
+.k-pos-product-desc {
+    font-size: 0.78rem;
+    color: #7b6fa7;
+    line-height: 1.3;
+}
+
+/* ===== Nota general del pedido (POS) ===== */
+.k-pos-cart-note {
+    margin: 1rem 0 0.75rem;
+}
+
+.k-pos-cart-note-label {
+    display: block;
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+    color: #e5e7eb;
+    opacity: 0.9;
+}
+
+.k-pos-cart-note-textarea {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(15, 23, 42, 0.85);
+    color: #f9fafb;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.8rem;
+    resize: vertical;
+    min-height: 56px;
+}
+
+.k-pos-cart-note-textarea::placeholder {
+    color: rgba(148, 163, 184, 0.85);
+}
+
+/* ===== Pedidos – header filtros ===== */
+
+.k-orders-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.k-orders-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Contenedor fecha + botón */
+.k-orders-date-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.45rem 0.35rem 0.9rem;
+    border-radius: 999px;
+    background: #151326; /* dark moradito */
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.45);
+}
+
+/* Input date con estilo clean */
+.k-input-date {
+    border: none;
+    background: transparent;
+    color: #f9fafb;
+    font-size: 0.8rem;
+    font-family: inherit;
+    outline: none;
+    min-width: 135px;
+}
+
+.k-input-date::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.85;
+    cursor: pointer;
+}
+
+/* Botón "Filtrar" en modo pill peque */
+.k-btn-secondary--pill {
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.78rem;
+}
+
+/* Ajuste del buscador en pedidos para no verse gigante al lado del filtro */
+.k-table-search--orders {
+    width: 220px;
+}
+
+/* En pantallas chicas: apilar filtros */
+@media (max-width: 900px) {
+    .k-orders-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .k-orders-header-right {
+        width: 100%;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .k-table-search--orders {
+        width: 100%;
+    }
+}
+
+.k-report-kpis {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.k-report-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 1rem 1.1rem;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.k-report-label {
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
+.k-report-value {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #4f46e5;
+}
+
+.k-report-grid {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr;
+    gap: 1.2rem;
+}
+
+/* =========================================
+   Skeleton / Shimmer loading
+   Para tablas, cards y bloques de contenido
+   ========================================= */
+
+   .k-skeleton {
+    position: relative;
+    overflow: hidden;
+    background: #f5f3ff; /* fondo base suave */
+    border-radius: 18px;
+}
+
+.k-skeleton--card {
+    padding: 20px 24px;
+}
+
+.k-skeleton--table {
+    padding: 16px 20px;
+}
+
+/* Filas del "fake" table */
+.k-skeleton-row {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr 1.4fr 1fr 1fr 1fr 40px;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.k-skeleton-row:last-child {
+    margin-bottom: 0;
+}
+
+/* "Celda" genérica */
+.k-skeleton-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Avatar cuadrado (para imagen del producto) */
+.k-skeleton-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.04);
+}
+
+/* Líneas de texto */
+.k-skeleton-line {
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.k-skeleton-line--sm {
+    width: 35%;
+}
+
+.k-skeleton-line--md {
+    width: 60%;
+}
+
+.k-skeleton-line--lg {
+    width: 90%;
+}
+
+/* Estado "pill" (Activo / Inactivo) */
+.k-skeleton-pill {
+    width: 70px;
+    height: 24px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.04);
+}
+
+/* Icono de acciones */
+.k-skeleton-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.08);
+}
+
+/* Shimmer effect */
+.k-skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.8) 40%,
+        rgba(255, 255, 255, 0) 80%
+    );
+    animation: k-shimmer 1.4s infinite;
+    pointer-events: none;
+}
+
+@keyframes k-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Modo accesible: sin animación si el usuario lo pide */
+@media (prefers-reduced-motion: reduce) {
+    .k-skeleton::after {
+        animation: none;
+        background: none;
+    }
+}
+
+/* Estado de tarjeta "cargando": ocultamos contenido real */
+.k-table-card.k-is-loading .k-table,
+.k-table-card.k-is-loading .k-table-header,
+.k-table-card.k-is-loading .k-table-footer {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.k-table-card.k-is-loading {
+    min-height: 260px;
+}
+
+.k-order-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    margin-left: 0.35rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: #f9fafb;
+    color: #4b5563;
+}
+
+.k-order-badge--counter {
+    background: rgba(239, 68, 68, 0.08);
+    color: #b91c1c;
+    border-color: rgba(239, 68, 68, 0.25);
+}
+
+.k-order-badge--qr {
+    background: rgba(59, 130, 246, 0.08);
+    color: #1d4ed8;
+    border-color: rgba(59, 130, 246, 0.25);
+}
+
+.k-order-type-label {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-left: 0.35rem;
+}
+
+.k-input--error {
+    border-color: #fb7185 !important;
+    box-shadow: 0 0 0 1px rgba(251, 113, 133, .4);
+}
+
+/* ========================================================
+   KUALI PREMIUM SAAS DESIGN SYSTEM (STRIPE & LINEAR STYLE)
+   ======================================================== */
+.k-premium-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    font-family: 'Poppins', sans-serif;
+    color: #1e1b4b;
+    padding-bottom: 3rem;
+}
+
+/* Header refined */
+.k-premium-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(79, 70, 229, 0.08);
+    padding-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
+    gap: 1.5rem;
+}
+
+.k-premium-title-wrap h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #312e81 0%, #4f46e5 50%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+    letter-spacing: -0.03em;
+}
+
+.k-premium-subtitle {
+    font-size: 0.95rem;
+    color: #4b5563;
+    margin-top: 0.35rem;
+    font-weight: 400;
+}
+
+.k-premium-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.k-premium-date-pill {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 99px;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    color: #374151;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+/* Grid layout for KPIs */
+.k-premium-kpis-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+.k-premium-kpi-card {
+    background: #ffffff;
+    border: 1px solid rgba(229, 231, 235, 0.7);
+    border-radius: 20px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px -2px rgba(139, 92, 246, 0.03), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.k-premium-kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px -4px rgba(79, 70, 229, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+    border-color: rgba(79, 70, 229, 0.25);
+}
+
+.k-premium-kpi-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.k-premium-kpi-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    transition: all 0.3s ease;
+}
+
+.k-premium-kpi-icon-wrap.purple {
+    background: rgba(99, 102, 241, 0.09);
+    color: #4f46e5;
+}
+
+.k-premium-kpi-icon-wrap.orange {
+    background: rgba(249, 115, 22, 0.09);
+    color: #ea580c;
+}
+
+.k-premium-kpi-icon-wrap.emerald {
+    background: rgba(16, 185, 129, 0.09);
+    color: #059669;
+}
+
+.k-premium-kpi-icon-wrap.pink {
+    background: rgba(236, 72, 153, 0.09);
+    color: #db2777;
+}
+
+.k-premium-kpi-card:hover .k-premium-kpi-icon-wrap {
+    transform: scale(1.1);
+}
+
+.k-premium-kpi-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.k-premium-kpi-value {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0.25rem 0;
+    letter-spacing: -0.02em;
+}
+
+.k-premium-kpi-trend {
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 99px;
+    padding: 0.15rem 0.5rem;
+}
+
+.k-premium-kpi-trend.up {
+    background: #ecfdf5;
+    color: #065f46;
+}
+
+.k-premium-kpi-trend.down {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.k-premium-kpi-helper {
+    font-size: 0.78rem;
+    color: #9ca3af;
+    margin-top: 0.5rem;
+    border-top: 1px dashed rgba(229, 231, 235, 0.8);
+    padding-top: 0.5rem;
+}
+
+/* Sparkline simulated */
+.k-premium-kpi-spark {
+    width: 60px;
+    height: 25px;
+    opacity: 0.85;
+}
+
+/* Layout Main Content: Grid 2 Columns */
+.k-premium-main-grid {
+    display: grid;
+    grid-template-columns: 1.45fr 1fr;
+    gap: 1.5rem;
+}
+
+/* Premium card generic */
+.k-premium-card {
+    background: #ffffff;
+    border: 1px solid rgba(229, 231, 235, 0.7);
+    border-radius: 24px;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.02);
+    padding: 1.75rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.k-premium-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.k-premium-card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e1b4b;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.k-premium-card-title i {
+    color: #4f46e5;
+}
+
+.k-premium-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Quick Actions hub style grid */
+.k-premium-actions-hub {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.k-premium-action-item {
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.01);
+}
+
+.k-premium-action-item:hover {
+    transform: translateY(-2px);
+    border-color: #4f46e5;
+    background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.05);
+}
+
+.k-premium-action-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #e0e7ff;
+    color: #4f46e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    transition: all 0.25s ease;
+}
+
+.k-premium-action-item:hover .k-premium-action-avatar {
+    background: #4f46e5;
+    color: #ffffff;
+}
+
+.k-premium-action-meta h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.k-premium-action-meta p {
+    margin: 0.2rem 0 0;
+    font-size: 0.78rem;
+    color: #6b7280;
+    line-height: 1.3;
+}
+
+/* Beautiful dynamic charts or widgets */
+.k-premium-dish-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.k-premium-dish-row:last-child {
+    border-bottom: none;
+}
+
+.k-premium-dish-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+}
+
+.k-premium-dish-fallback {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: #e0e7ff;
+    color: #4f46e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.k-premium-dish-meta {
+    flex: 1;
+}
+
+.k-premium-dish-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.k-premium-dish-cat {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.15rem;
+}
+
+.k-premium-dish-progress-bar {
+    width: 80px;
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 99px;
+    overflow: hidden;
+    margin-inline: 1rem;
+}
+
+.k-premium-dish-progress-inner {
+    height: 100%;
+    background: linear-gradient(90deg, #4f46e5, #f97316);
+    border-radius: 99px;
+}
+
+.k-premium-dish-stats {
+    text-align: right;
+}
+
+.k-premium-dish-sales {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.k-premium-dish-qty {
+    font-size: 0.75rem;
+    color: #8b5cf6;
+    font-weight: 600;
+}
+
+/* Recent order card */
+.k-premium-order-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem;
+    background: #fcfcfd;
+    border: 1px solid #f3f4f6;
+    border-radius: 16px;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.k-premium-order-row:hover {
+    background: #ffffff;
+    border-color: rgba(99, 102, 241, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+.k-premium-order-left {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.k-premium-order-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #f3f4f6;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.k-premium-order-meta h4 {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.k-premium-order-meta p {
+    margin: 0.15rem 0 0;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.k-premium-order-right {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.k-premium-order-total {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Custom visual list styles */
+.k-premium-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.55rem;
+    border-radius: 99px;
+    text-transform: uppercase;
+}
+
+.k-premium-badge.pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.k-premium-badge.in_progress {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.k-premium-badge.ready {
+    background: #e0e7ff;
+    color: #4f46e5;
+}
+
+.k-premium-badge.delivered {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.k-premium-badge.completed {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.k-premium-badge.cancelled {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* Brand promotion promo card */
+.k-premium-promo-card {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    border: none;
+    color: #ffffff;
+    padding: 1.75rem;
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px -5px rgba(49, 46, 129, 0.3);
+}
+
+.k-premium-promo-card::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 200px;
+    height: 200px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 70%);
+}
+
+.k-premium-promo-card-content {
+    position: relative;
+    z-index: 2;
+}
+
+.k-premium-promo-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: rgba(249, 115, 22, 0.2);
+    color: #ff9d6c;
+    border: 1px solid rgba(249, 115, 22, 0.3);
+    padding: 0.2rem 0.6rem;
+    border-radius: 99px;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.85rem;
+}
+
+.k-premium-promo-card h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.k-premium-promo-card p {
+    margin: 0.5rem 0 1.25rem;
+    font-size: 0.8rem;
+    color: #c7d2fe;
+    line-height: 1.45;
+}
+
+.k-premium-btn-white {
+    background: #ffffff;
+    color: #312e81;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.55rem 1.25rem;
+    border-radius: 99px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+    transition: all 0.2s ease;
+}
+
+.k-premium-btn-white:hover {
+    background: #f5f3ff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.25);
+}
+
+.k-premium-btn-white i {
+    font-size: 1rem;
+}
+
+/* Micro-sparkline graphic simulation using HTML elements */
+.k-premium-sparkline-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 24px;
+}
+
+.k-premium-spark-bar {
+    width: 3px;
+    background: #e0e7ff;
+    border-radius: 99px;
+}
+
+.k-premium-spark-bar.active {
+    background: #4f46e5;
+}
+
+/* RESPONSIVE PREMIUM OVERRIDES */
+@media (max-width: 1200px) {
+    .k-premium-kpis-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .k-premium-main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .k-premium-kpis-grid {
+        grid-template-columns: 1fr;
+    }
+    .k-premium-actions-hub {
+        grid-template-columns: 1fr;
+    }
+    .k-premium-title-wrap h1 {
+        font-size: 1.8rem;
+    }
+    .k-premium-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+    }
+}
