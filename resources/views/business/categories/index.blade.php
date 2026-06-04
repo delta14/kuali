@@ -205,7 +205,7 @@
                 <div class="k-field k-switch" style="display: flex; align-items: center; justify-content: space-between; background: #f9fafb; border-radius: 12px; padding: 0.75rem 1rem;">
                     <label class="k-label" style="font-weight: 600; color: #374151; font-size: 0.85rem; margin: 0;">Visible en menú público</label>
                     <label class="k-switch__control" style="position: relative; display: inline-block; width: 44px; height: 24px;">
-                        <input type="checkbox" name="is_active" checked style="opacity: 0; width: 0; height: 0;">
+                        <input type="checkbox" name="is_active" value="1" checked style="opacity: 0; width: 0; height: 0;">
                         <span class="k-switch__slider" style="position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: .3s; border-radius: 34px;"></span>
                         <span class="k-switch__text" style="display:none;"></span>
                     </label>
@@ -248,7 +248,7 @@
                 <div class="k-field k-switch" style="display: flex; align-items: center; justify-content: space-between; background: #f9fafb; border-radius: 12px; padding: 0.75rem 1rem;">
                     <label class="k-label" style="font-weight: 600; color: #374151; font-size: 0.85rem; margin: 0;">Visible en menú público</label>
                     <label class="k-switch__control" style="position: relative; display: inline-block; width: 44px; height: 24px;">
-                        <input type="checkbox" name="is_active" id="edit_is_active_category" style="opacity: 0; width: 0; height: 0;">
+                        <input type="checkbox" name="is_active" value="1" id="edit_is_active_category" style="opacity: 0; width: 0; height: 0;">
                         <span class="k-switch__slider" style="position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: .3s; border-radius: 34px;"></span>
                         <span class="k-switch__text" style="display:none;"></span>
                     </label>
