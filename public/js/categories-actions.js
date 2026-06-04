@@ -18,6 +18,15 @@ document.addEventListener("DOMContentLoaded", () => {
         currentEditUrl      = btn.dataset.editUrl || "";
         currentDeleteUrl    = btn.dataset.deleteUrl || "";
 
+        // Copiar datasets al botón de edición para que el modal los lea
+        const popoverEditBtn = popover.querySelector(".js-edit-category");
+        if (popoverEditBtn) {
+            popoverEditBtn.dataset.id = btn.dataset.id || "";
+            popoverEditBtn.dataset.name = btn.dataset.name || "";
+            popoverEditBtn.dataset.description = btn.dataset.description || "";
+            popoverEditBtn.dataset.active = btn.dataset.active || "0";
+        }
+
         // Mostrar para poder medir tamaños
         popover.classList.remove("hidden");
         backdrop.classList.remove("hidden");
@@ -99,9 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const editBtn = document.querySelector(".js-edit-category");
     if (editBtn) {
         editBtn.addEventListener("click", () => {
-            if (currentEditUrl) {
-                window.location.href = currentEditUrl;
-            }
+            closePopover();
         });
     }
 

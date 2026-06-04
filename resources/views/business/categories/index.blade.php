@@ -122,6 +122,8 @@
                                     <button type="button" class="k-actions-trigger js-open-actions"
                                             data-id="{{ $cat->id }}"
                                             data-name="{{ $cat->name }}"
+                                            data-description="{{ $cat->description }}"
+                                            data-active="{{ $cat->is_active }}"
                                             data-edit-url="{{ route('categories.edit', $cat) }}"
                                             data-delete-url="{{ route('categories.destroy', $cat) }}"
                                             style="width: 34px; height: 34px; background: #f3f4f6; border-radius: 50%; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: #4b5563; transition: all 0.2s ease;">
