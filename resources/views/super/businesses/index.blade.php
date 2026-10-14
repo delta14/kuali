@@ -116,6 +116,7 @@
                                         data-slug="{{ $business->slug }}" data-email="{{ $business->email_contact }}"
                                         data-phone="{{ $business->phone }}" data-address="{{ $business->address }}"
                                         data-plan="{{ $business->plan }}"
+                                        data-logo="{{ $business->logo_path ? asset('storage/' . $business->logo_path) : '' }}"
                                         data-active="{{ $business->is_active ? '1' : '0' }}"
                                         data-admin-name="{{ $mainAdmin->name ?? '' }}"
                                         data-admin-email="{{ $mainAdmin->email ?? '' }}">
@@ -162,7 +163,7 @@
                 </button>
             </div>
 
-            <form method="POST" action="{{ route('super.businesses.store') }}">
+            <form method="POST" action="{{ route('super.businesses.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="k-modal__body">
                     <div class="k-field">
@@ -204,6 +205,15 @@
                         <label class="k-label">Dirección</label>
                         <input type="text" name="address" class="k-input"
                             placeholder="Calle, número, colonia, ciudad">
+                    </div>
+
+                    <div class="k-field">
+                        <label class="k-label">Logo del comercio</label>
+                        <input type="file" name="logo" class="k-input" accept="image/*"
+                            style="height: auto; border-radius: 12px; border: 1px solid #d1d5db; padding: 0.45rem; width: 100%; font-size: 0.82rem; outline: none; background: #ffffff;">
+                        <div class="k-field-message">
+                            Se usa en el panel y en el flyer/QR de mesas para imprimir. Formatos: JPG, PNG o WEBP, máx. 2MB.
+                        </div>
                     </div>
 
                     <div class="k-field k-switch">
@@ -249,7 +259,7 @@
 
             {{-- TAB 1: datos negocio --}}
             <form method="POST" action="" id="formEditBusiness" class="k-tabs__panel k-tabs__panel--active"
-                data-tab-panel="business">
+                data-tab-panel="business" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="k-modal__body">
@@ -290,6 +300,19 @@
                     <div class="k-field">
                         <label class="k-label">Dirección</label>
                         <input type="text" name="address" class="k-input">
+                    </div>
+
+                    <div class="k-field">
+                        <label class="k-label">Logo del comercio</label>
+                        <div style="display:flex; align-items:center; gap:0.75rem;">
+                            <img id="edit_logo_preview" src="" alt="Logo actual"
+                                style="display:none; width:48px; height:48px; border-radius:10px; object-fit:cover; border:1px solid #e5e7eb;">
+                            <input type="file" name="logo" class="k-input" accept="image/*"
+                                style="height: auto; border-radius: 12px; border: 1px solid #d1d5db; padding: 0.45rem; width: 100%; font-size: 0.82rem; outline: none; background: #ffffff;">
+                        </div>
+                        <div class="k-field-message">
+                            Sube una imagen para reemplazar el logo actual. Se usa en el panel y en el flyer/QR para imprimir.
+                        </div>
                     </div>
 
                     <div class="k-field k-switch">

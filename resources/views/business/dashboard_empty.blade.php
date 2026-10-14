@@ -45,11 +45,7 @@
     </div>
 </div>
 
-<style>
-    @keyframes float {
-        0% { transform: translateY(0px); }
-        50% { transform: translateY(-8px); }
-        100% { transform: translateY(0px); }
-    }
-</style>
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/pages/business-dashboard-empty.css') }}">
+@endpush
 @endsection

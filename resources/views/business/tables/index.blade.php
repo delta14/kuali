@@ -285,34 +285,9 @@
 
 @push('scripts')
     {{-- CSS Inline de switches premium y loaders --}}
-    <style>
-        .k-switch__control input:checked + .k-switch__slider {
-            background-color: #4f46e5 !important;
-        }
-        .k-switch__control input:checked + .k-switch__slider::before {
-            transform: translateX(20px);
-        }
-        .k-switch__slider::before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-        }
-        .k-switch__slider {
-            position: absolute;
-            cursor: pointer;
-            inset: 0;
-            background-color: #ccc;
-            transition: .3s;
-            border-radius: 34px;
-        }
-    </style>
+    @push('styles')
+        <link rel="stylesheet" href="{{ asset('css/pages/business-tables.css') }}">
+    @endpush
     <script>
         // Buscador interactivo local rápido sobre tarjetas
         document.addEventListener('DOMContentLoaded', () => {

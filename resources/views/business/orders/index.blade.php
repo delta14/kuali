@@ -76,7 +76,7 @@
             <div class="k-orders-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
                 @forelse($orders as $order)
                     @php
-                        $folio = $order->id;
+                        $folio = $order->order_number ?? $order->id;
                         $mesa = $order->table_name ?? ($order->table?->name ?? 'Sin mesa');
                         $fechaTexto = $order->created_at?->format('d/m H:i');
                         $estadoTexto = $order->status_label ?? ucfirst($order->status ?? 'Pending');
@@ -282,64 +282,8 @@
 
 @push('scripts')
     {{-- CSS Inline de comandas e items dinámicos --}}
-    <style>
-        .k-order-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.65rem 0.85rem;
-            background: #fafafa;
-            border: 1px solid #f3f4f6;
-            border-radius: 12px;
-            gap: 1rem;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-        }
-        .k-order-item:hover {
-            border-color: rgba(99, 102, 241, 0.15);
-            background: #ffffff;
-        }
-        .k-order-item-main {
-            flex: 1;
-        }
-        .k-order-item-name {
-            font-weight: 600;
-            color: #111827;
-        }
-        .k-order-item-note {
-            font-size: 0.72rem;
-            color: #ea580c;
-            background: rgba(234, 88, 12, 0.05);
-            border-radius: 6px;
-            padding: 0.15rem 0.4rem;
-            display: inline-block;
-            margin-top: 0.15rem;
-            border: 1px solid rgba(234, 88, 12, 0.1);
-        }
-        .k-order-item-meta {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-align: right;
-        }
-        .k-order-item-qty {
-            font-weight: 700;
-            color: #4f46e5;
-            background: rgba(79, 70, 229, 0.05);
-            border-radius: 6px;
-            padding: 0.1rem 0.35rem;
-            font-size: 0.75rem;
-        }
-        .k-order-item-price {
-            font-size: 0.78rem;
-            color: #6b7280;
-        }
-        .k-order-item-total {
-            font-weight: 700;
-            color: #111827;
-            font-size: 0.85rem;
-            min-width: 60px;
-        }
-    </style>
+    @push('styles')
+        <link rel="stylesheet" href="{{ asset('css/pages/business-orders.css') }}">
+    @endpush
     <script src="{{ asset('js/business-orders.js') }}"></script>
 @endpush

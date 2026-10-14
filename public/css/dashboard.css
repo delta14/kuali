@@ -1023,12 +1023,13 @@
    =========================== */
 .k-toast-stack {
     position: fixed;
-    top: 1.5rem;
+    bottom: 1.5rem;
     right: 1.5rem;
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 0.75rem;
     z-index: 1200;
+    pointer-events: none;
 }
 
 .k-toast {
@@ -1043,6 +1044,7 @@
     box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);
     color: #111827;
     transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+    pointer-events: auto;
 }
 
 .k-toast__icon {

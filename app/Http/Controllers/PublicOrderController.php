@@ -4,48 +4,79 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class PublicOrderController extends Controller
 {
     public function store(Request $request)
     {
+        // business_id se valida primero para poder escopar las reglas de abajo a ESE negocio.
+        $businessId = (int) $request->input('business_id');
+
         $data = $request->validate([
-            'business_id'          => ['required', 'integer', 'exists:businesses,id'],
-            'table_id'             => ['nullable', 'integer', 'exists:tables,id'],
-            'customer_name'        => ['nullable', 'string', 'max:100'],
-            'customer_phone'       => ['nullable', 'string', 'max:30'],
-            'notes'                => ['nullable', 'string', 'max:500'],
+            'business_id'    => ['required', 'integer', 'exists:businesses,id'],
+            'table_id'       => ['nullable', 'integer', Rule::exists('tables', 'id')->where('business_id', $businessId)],
+            'customer_name'  => ['nullable', 'string', 'max:100'],
+            'customer_phone' => ['nullable', 'string', 'max:30'],
+            'notes'          => ['nullable', 'string', 'max:500'],
 
-            'subtotal'             => ['nullable', 'numeric', 'min:0'],
-            'discount'             => ['nullable', 'numeric', 'min:0'],
-            'total'                => ['nullable', 'numeric', 'min:0'],
-
-            'items'                => ['required', 'array', 'min:1'],
-            'items.*.product_id'   => ['required', 'integer'],
-            'items.*.name'         => ['required', 'string', 'max:150'],
-            'items.*.qty'          => ['required', 'integer', 'min:1'],
-            'items.*.unit_price'   => ['required', 'numeric', 'min:0'],
-            'items.*.total'        => ['required', 'numeric', 'min:0'],
-            'items.*.notes'        => ['nullable', 'string', 'max:300'],
+            // subtotal/discount/total e items.*.unit_price/total NO se validan aquí:
+            // nunca confiamos en precios que vengan del cliente, se recalculan abajo
+            // a partir del precio real del producto en la base de datos.
+            'items'               => ['required', 'array', 'min:1'],
+            'items.*.product_id'  => [
+                'required',
+                'integer',
+                Rule::exists('products', 'id')->where('business_id', $businessId)->where('is_active', true),
+            ],
+            'items.*.qty'    => ['required', 'integer', 'min:1', 'max:50'],
+            'items.*.notes'  => ['nullable', 'string', 'max:300'],
         ]);
 
         try {
-            return DB::transaction(function () use ($data) {
-                $tableId = $data['table_id'] ?? null;
+            return DB::transaction(function () use ($data, $businessId) {
+                $products = Product::where('business_id', $businessId)
+                    ->whereIn('id', collect($data['items'])->pluck('product_id')->unique())
+                    ->get()
+                    ->keyBy('id');
 
-                $computedSubtotal = collect($data['items'])->sum('total');
+                $subtotal = 0;
+                $lineItems = [];
 
-                $subtotal = $data['subtotal'] ?? $computedSubtotal;
-                $discount = $data['discount'] ?? 0;
-                $total    = $data['total'] ?? ($subtotal - $discount);
+                foreach ($data['items'] as $item) {
+                    $product = $products->get($item['product_id']);
+
+                    // Ya cubierto por Rule::exists, pero por si el producto se
+                    // desactivó justo entre la validación y la transacción.
+                    abort_unless($product, 422, 'Uno de los productos ya no está disponible.');
+
+                    $qty = (int) $item['qty'];
+                    $unitPrice = (float) $product->price;
+                    $lineTotal = round($unitPrice * $qty, 2);
+
+                    $subtotal += $lineTotal;
+
+                    $lineItems[] = [
+                        'product_id'  => $product->id,
+                        'quantity'    => $qty,
+                        'unit_price'  => $unitPrice,
+                        'total_price' => $lineTotal,
+                        'notes'       => $item['notes'] ?? null,
+                    ];
+                }
+
+                $subtotal = round($subtotal, 2);
+                $discount = 0.0; // sin sistema de cupones todavía; no se acepta del cliente
+                $total    = round($subtotal - $discount, 2);
 
                 $order = Order::create([
-                    'business_id'    => $data['business_id'],
-                    'table_id'       => $tableId,
+                    'business_id'    => $businessId,
+                    'order_number'   => Order::nextNumberFor($businessId),
+                    'table_id'       => $data['table_id'] ?? null,
                     'user_id'        => null,
                     'status'         => 'pending',
                     'source'         => 'qr',
@@ -59,24 +90,21 @@ class PublicOrderController extends Controller
                     'placed_at'      => now(),
                 ]);
 
-                foreach ($data['items'] as $item) {
+                foreach ($lineItems as $lineItem) {
                     OrderItem::create([
-                        'business_id' => $data['business_id'],
+                        'business_id' => $businessId,
                         'order_id'    => $order->id,
-                        'product_id'  => $item['product_id'],
-                        'quantity'    => $item['qty'],
-                        'unit_price'  => $item['unit_price'],
-                        'total_price' => $item['total'],
-                        'notes'       => $item['notes'] ?? null,
+                        ...$lineItem,
                     ]);
                 }
 
                 return response()->json([
-                    'ok'        => true,
-                    'order_id'  => $order->id,
-                    'subtotal'  => (float) $order->subtotal,
-                    'discount'  => (float) $order->discount,
-                    'total'     => (float) $order->total,
+                    'ok'           => true,
+                    'order_id'     => $order->id,
+                    'order_number' => $order->order_number,
+                    'subtotal' => (float) $order->subtotal,
+                    'discount' => (float) $order->discount,
+                    'total'    => (float) $order->total,
                 ]);
             });
         } catch (ValidationException $e) {

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Pedido #'.$order->id)
+@section('title', 'Pedido #'.($order->order_number ?? $order->id))
 
 @section('content')
 <div class="k-main-inner">
@@ -13,7 +13,7 @@
 
     <div class="k-page-toolbar">
         <div>
-            <h1 class="k-page-toolbar-title">Pedido #{{ $order->id }}</h1>
+            <h1 class="k-page-toolbar-title">Pedido #{{ $order->order_number ?? $order->id }}</h1>
             <p class="k-page-toolbar-subtitle">
                 {{ $business->name }} — 
                 {{ optional($order->placed_at ?? $order->created_at)->format('d/m/Y H:i') }}

@@ -9,6 +9,7 @@ use App\Models\Business;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 
 class BusinessController extends Controller
@@ -54,6 +55,7 @@ class BusinessController extends Controller
             'address'       => ['nullable', 'string', 'max:255'],
             'plan'          => ['nullable', 'string', 'max:50'],
             'is_active'     => ['nullable'],
+            'logo'          => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         // si no mandan slug, lo generamos del nombre
@@ -63,6 +65,11 @@ class BusinessController extends Controller
 
         // checkbox
         $data['is_active'] = $request->has('is_active') ? 1 : 0;
+
+        if ($request->hasFile('logo')) {
+            $data['logo_path'] = $request->file('logo')->store('businesses', 'public');
+        }
+        unset($data['logo']); // no existe columna logo
 
         Business::create($data);
 
@@ -87,6 +94,7 @@ class BusinessController extends Controller
             'address'       => ['nullable', 'string', 'max:255'],
             'plan'          => ['nullable', 'string', 'max:50'],
             'is_active'     => ['nullable'],
+            'logo'          => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         if (empty($data['slug'])) {
@@ -94,6 +102,14 @@ class BusinessController extends Controller
         }
 
         $data['is_active'] = $request->boolean('is_active');
+
+        if ($request->hasFile('logo')) {
+            if ($business->logo_path) {
+                Storage::disk('public')->delete($business->logo_path);
+            }
+            $data['logo_path'] = $request->file('logo')->store('businesses', 'public');
+        }
+        unset($data['logo']); // no existe columna logo
 
         $business->update($data);
 
@@ -105,6 +121,10 @@ class BusinessController extends Controller
     public function destroy(Business $business)
     {
         $name = $business->name;
+
+        if ($business->logo_path) {
+            Storage::disk('public')->delete($business->logo_path);
+        }
 
         $business->delete();
 

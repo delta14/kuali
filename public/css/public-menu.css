@@ -669,8 +669,10 @@ body {
     width: 100%;
     margin: 0 auto;
     height: 100vh;
+    height: 100dvh;
     background: #FAF7FB;
     padding: 1.5rem 1.25rem;
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
     display: flex;
     flex-direction: column;
 }

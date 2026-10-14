@@ -11,6 +11,7 @@ class Order extends Model
 
     protected $fillable = [
         'business_id',
+        'order_number',
         'table_id',
         'user_id',
         'status',
@@ -25,6 +26,23 @@ class Order extends Model
         'placed_at',
         'closed_at',
     ];
+
+    /**
+     * Folio secuencial propio del negocio (1, 2, 3... por comercio, no global).
+     * Debe llamarse dentro de una transacción: bloquea la fila del negocio
+     * para evitar que dos pedidos simultáneos obtengan el mismo número.
+     */
+    public static function nextNumberFor(int $businessId): int
+    {
+        $business = Business::where('id', $businessId)->lockForUpdate()->first();
+
+        $next = $business->last_order_number + 1;
+
+        $business->last_order_number = $next;
+        $business->save();
+
+        return $next;
+    }
 
     protected $casts = [
         'placed_at' => 'datetime',

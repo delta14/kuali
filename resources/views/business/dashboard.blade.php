@@ -286,7 +286,7 @@
                             <a href="{{ route('orders.show', $order->id) }}" class="k-premium-order-row">
                                 <div class="k-premium-order-left">
                                     <div class="k-premium-order-badge">
-                                        #{{ $order->id }}
+                                        #{{ $order->order_number ?? $order->id }}
                                     </div>
                                     <div class="k-premium-order-meta">
                                         <h4>
@@ -342,16 +342,7 @@
 </div>
 
 {{-- ESTILO DE ANIMACION DE PULSACION Y FLOTACIÓN DEL ICONO EN TIEMPO REAL --}}
-<style>
-    @keyframes pulse {
-        0% { transform: scale(1); opacity: 0.85; }
-        50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 4px rgba(79, 70, 229, 0.6)); }
-        100% { transform: scale(1); opacity: 0.85; }
-    }
-    @keyframes float {
-        0% { transform: translateY(0px); }
-        50% { transform: translateY(-6px); }
-        100% { transform: translateY(0px); }
-    }
-</style>
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/pages/business-dashboard.css') }}">
+@endpush
 @endsection

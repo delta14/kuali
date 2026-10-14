@@ -417,96 +417,9 @@
 
 @push('scripts')
     {{-- CSS Inline de switches premium y loaders --}}
-    <style>
-        .k-switch__control input:checked + .k-switch__slider {
-            background-color: #4f46e5 !important;
-        }
-        .k-switch__control input:checked + .k-switch__slider::before {
-            transform: translateX(20px);
-        }
-        .k-switch__slider::before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-        }
-        .k-switch__slider {
-            position: absolute;
-            cursor: pointer;
-            inset: 0;
-            background-color: #ccc;
-            transition: .3s;
-            border-radius: 34px;
-        }
-
-        /* Overrides de Paginador Laravel (Tailwind a Vanilla CSS Premium) */
-        nav[role="navigation"] {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #ffffff;
-            padding: 0.5rem 0;
-            font-family: 'Poppins', sans-serif;
-        }
-        nav[role="navigation"] svg {
-            width: 18px;
-            height: 18px;
-        }
-        nav[role="navigation"] .hidden {
-            display: flex !important;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-        nav[role="navigation"] .sm\:flex-1 {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        nav[role="navigation"] a, 
-        nav[role="navigation"] span {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 32px;
-            height: 32px;
-            padding: 0 0.4rem;
-            margin: 0 2px;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
-            background: #ffffff;
-            color: #4b5563;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-        nav[role="navigation"] a:hover {
-            border-color: #4f46e5;
-            color: #4f46e5;
-            background: rgba(79, 70, 229, 0.02);
-            transform: translateY(-1px);
-        }
-        nav[role="navigation"] span[aria-current="page"] {
-            background: #4f46e5 !important;
-            color: #ffffff !important;
-            border-color: #4f46e5 !important;
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15);
-        }
-        nav[role="navigation"] span.cursor-default {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-    </style>
+    @push('styles')
+        <link rel="stylesheet" href="{{ asset('css/pages/business-products.css') }}">
+    @endpush
 
     <script src="{{ asset('js/business-products.js') }}"></script>
 @endpush

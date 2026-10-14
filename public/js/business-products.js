@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
             formEdit.querySelector('[name="description"]').value =
                 btn.dataset.description || "";
 
-            const chk = formEdit.querySelector("#edit_is_active");
+            const chk = formEdit.querySelector("#edit_product_is_active");
             if (chk) {
                 chk.checked = btn.dataset.active === "1";
             }

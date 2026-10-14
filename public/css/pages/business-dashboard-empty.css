@@ -1,0 +1,7 @@
+/* css/pages/business-dashboard-empty.css - extraido de resources/views/business/dashboard_empty.blade.php */
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0px); }
+}

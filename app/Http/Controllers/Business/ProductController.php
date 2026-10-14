@@ -9,6 +9,7 @@ use App\Models\Business;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -60,7 +61,7 @@ class ProductController extends Controller
 
         $data = $request->validate([
             'name'        => ['required', 'string', 'max:190'],
-            'category_id' => ['required', 'exists:categories,id'],
+            'category_id' => ['required', Rule::exists('categories', 'id')->where('business_id', $business->id)],
             'price'       => ['required', 'numeric', 'min:0'],
             'description' => ['nullable', 'string', 'max:500'],
             'image'       => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
@@ -96,7 +97,7 @@ class ProductController extends Controller
 
         $data = $request->validate([
             'name'        => ['required', 'string', 'max:190'],
-            'category_id' => ['required', 'exists:categories,id'],
+            'category_id' => ['required', Rule::exists('categories', 'id')->where('business_id', $business->id)],
             'price'       => ['required', 'numeric', 'min:0'],
             'description' => ['nullable', 'string', 'max:500'],
             'image'       => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],

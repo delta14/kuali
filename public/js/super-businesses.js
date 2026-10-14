@@ -61,6 +61,17 @@ document.addEventListener('DOMContentLoaded', () => {
             formEdit.querySelector('[name="address"]').value       = btn.dataset.address || '';
             formEdit.querySelector('[name="plan"]').value          = btn.dataset.plan || '';
 
+            const logoPreview = document.getElementById('edit_logo_preview');
+            if (logoPreview) {
+                if (btn.dataset.logo) {
+                    logoPreview.src = btn.dataset.logo;
+                    logoPreview.style.display = 'block';
+                } else {
+                    logoPreview.removeAttribute('src');
+                    logoPreview.style.display = 'none';
+                }
+            }
+
             if (editActive) {
                 editActive.checked = btn.dataset.active === '1';
             }

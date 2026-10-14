@@ -22,28 +22,24 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 
-// Splash por slug del negocio: /m/{slug}
-Route::get('/m/{slug}', [PublicMenuController::class, 'splash'])
-    ->name('public.menu.splash');
+// Vistas del menú: límite generoso, un cliente recarga el menú varias veces
+Route::middleware('throttle:60,1')->group(function () {
+    // Splash por slug del negocio: /m/{slug}
+    Route::get('/m/{slug}', [PublicMenuController::class, 'splash'])
+        ->name('public.menu.splash');
 
-// Menú por slug: /m/{slug}/menu?table=CODIGO
-Route::get('/m/{slug}/menu', [PublicMenuController::class, 'menu'])
-    ->name('public.menu.show');
+    // Menú por slug: /m/{slug}/menu?table=CODIGO
+    Route::get('/m/{slug}/menu', [PublicMenuController::class, 'menu'])
+        ->name('public.menu.show');
 
-// Menú por QR de mesa: /qr/{token}
-Route::get('/qr/{token}', [PublicMenuController::class, 'showByTable'])
-    ->name('public.menu.table');
+    // Menú por QR de mesa: /qr/{token}
+    Route::get('/qr/{token}', [PublicMenuController::class, 'showByTable'])
+        ->name('public.menu.table');
+});
 
-// Descargar PNG del QR de la mesa
-Route::get('tables/{table}/qr/download', [TableController::class, 'downloadQr'])
-    ->name('tables.qr.download');
-
-// Ver flyer imprimible de la mesa
-Route::get('tables/{table}/flyer', [TableController::class, 'flyer'])
-    ->name('tables.flyer');
-
-// Guardar pedido desde menú público
+// Guardar pedido desde menú público: límite más estricto para frenar spam de pedidos
 Route::post('/m/orders', [PublicOrderController::class, 'store'])
+    ->middleware('throttle:10,1')
     ->name('public.orders.store');
 
 

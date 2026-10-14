@@ -68,7 +68,7 @@ class OrderController extends Controller
             return response()->json([
                 'ok' => true,
                 'id' => $order->id,
-                'folio' => '#'.$order->id,
+                'folio' => '#'.$order->order_number,
                 'table' => $order->table?->name ?? 'Sin mesa',
                 'status' => $order->status,
                 'status_label' => ucfirst($order->status),
@@ -181,7 +181,7 @@ class OrderController extends Controller
             $customerName = $order->customer_name ?: 'cliente';
 
             $text = urlencode(
-                "Hola {$customerName}, tu pedido #{$order->id} en {$businessName} ya está listo para recoger. ¡Gracias! 😊"
+                "Hola {$customerName}, tu pedido #{$order->order_number} en {$businessName} ya está listo para recoger. ¡Gracias! 😊"
             );
 
             $whatsappUrl = "https://wa.me/{$phone}?text={$text}";
@@ -245,7 +245,8 @@ class OrderController extends Controller
             );
     
             $order = Order::create([
-                'business_id' => $business->id,
+                'business_id'  => $business->id,
+                'order_number' => Order::nextNumberFor($business->id),
                 'table_name'  => $data['table_name'] ?? 'Mostrador',
                 'status'      => 'pending',
                 'status_label'=> 'En proceso',
@@ -275,6 +276,7 @@ class OrderController extends Controller
                 'message' => 'Pedido creado en mostrador correctamente.',
                 'order'   => [
                     'id'           => $order->id,
+                    'order_number' => $order->order_number,
                     'status'       => $order->status,
                     'status_label' => $order->status_label,
                 ],

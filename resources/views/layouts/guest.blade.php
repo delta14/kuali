@@ -8,10 +8,9 @@
     <link rel="stylesheet" href="{{ asset('css/kuali-base.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ asset('vendor/fonts/inter.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/fonts/poppins.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/fonts/manrope.css') }}">
 
 </head>
 <body>
