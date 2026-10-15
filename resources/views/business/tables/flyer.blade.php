@@ -15,7 +15,7 @@
 
     <style>
         :root {
-            --flyer-bg-image: url('{{ asset('images/flyer/delifondo01.jpg') }}');
+            --flyer-bg-image: url('{{ $business->flyer_bg_path ? asset('storage/' . $business->flyer_bg_path) : asset('images/flyer/delifondo01.jpg') }}');
         }
     </style>
     <link rel="stylesheet" href="{{ asset('css/pages/flyer.css') }}">

@@ -72,6 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            const flyerBgPreview = document.getElementById('edit_flyerbg_preview');
+            if (flyerBgPreview) {
+                if (btn.dataset.flyerbg) {
+                    flyerBgPreview.src = btn.dataset.flyerbg;
+                    flyerBgPreview.style.display = 'block';
+                } else {
+                    flyerBgPreview.removeAttribute('src');
+                    flyerBgPreview.style.display = 'none';
+                }
+            }
+
             if (editActive) {
                 editActive.checked = btn.dataset.active === '1';
             }

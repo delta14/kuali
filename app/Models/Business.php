@@ -15,6 +15,7 @@ class Business extends Model
         'phone',
         'address',
         'logo_path',
+        'flyer_bg_path',
         'plan',
         'is_active',
     ];

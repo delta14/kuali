@@ -56,6 +56,7 @@ class BusinessController extends Controller
             'plan'          => ['nullable', 'string', 'max:50'],
             'is_active'     => ['nullable'],
             'logo'          => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'flyer_bg'      => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ]);
 
         // si no mandan slug, lo generamos del nombre
@@ -70,6 +71,11 @@ class BusinessController extends Controller
             $data['logo_path'] = $request->file('logo')->store('businesses', 'public');
         }
         unset($data['logo']); // no existe columna logo
+
+        if ($request->hasFile('flyer_bg')) {
+            $data['flyer_bg_path'] = $request->file('flyer_bg')->store('businesses/flyer-bg', 'public');
+        }
+        unset($data['flyer_bg']); // no existe columna flyer_bg
 
         Business::create($data);
 
@@ -95,6 +101,7 @@ class BusinessController extends Controller
             'plan'          => ['nullable', 'string', 'max:50'],
             'is_active'     => ['nullable'],
             'logo'          => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'flyer_bg'      => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ]);
 
         if (empty($data['slug'])) {
@@ -111,6 +118,14 @@ class BusinessController extends Controller
         }
         unset($data['logo']); // no existe columna logo
 
+        if ($request->hasFile('flyer_bg')) {
+            if ($business->flyer_bg_path) {
+                Storage::disk('public')->delete($business->flyer_bg_path);
+            }
+            $data['flyer_bg_path'] = $request->file('flyer_bg')->store('businesses/flyer-bg', 'public');
+        }
+        unset($data['flyer_bg']); // no existe columna flyer_bg
+
         $business->update($data);
 
         return redirect()
@@ -124,6 +139,10 @@ class BusinessController extends Controller
 
         if ($business->logo_path) {
             Storage::disk('public')->delete($business->logo_path);
+        }
+
+        if ($business->flyer_bg_path) {
+            Storage::disk('public')->delete($business->flyer_bg_path);
         }
 
         $business->delete();

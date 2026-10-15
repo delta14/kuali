@@ -117,6 +117,7 @@
                                         data-phone="{{ $business->phone }}" data-address="{{ $business->address }}"
                                         data-plan="{{ $business->plan }}"
                                         data-logo="{{ $business->logo_path ? asset('storage/' . $business->logo_path) : '' }}"
+                                        data-flyerbg="{{ $business->flyer_bg_path ? asset('storage/' . $business->flyer_bg_path) : '' }}"
                                         data-active="{{ $business->is_active ? '1' : '0' }}"
                                         data-admin-name="{{ $mainAdmin->name ?? '' }}"
                                         data-admin-email="{{ $mainAdmin->email ?? '' }}">
@@ -216,6 +217,15 @@
                         </div>
                     </div>
 
+                    <div class="k-field">
+                        <label class="k-label">Imagen de fondo del flyer</label>
+                        <input type="file" name="flyer_bg" class="k-input" accept="image/*"
+                            style="height: auto; border-radius: 12px; border: 1px solid #d1d5db; padding: 0.45rem; width: 100%; font-size: 0.82rem; outline: none; background: #ffffff;">
+                        <div class="k-field-message">
+                            Fondo fijo que se usa en el flyer/QR de mesas de este comercio (horizontal y vertical). Si no se sube, se usa un fondo genérico. Formatos: JPG, PNG o WEBP, máx. 4MB.
+                        </div>
+                    </div>
+
                     <div class="k-field k-switch">
                         <label class="k-label">Comercio activo</label>
                         <label class="k-switch__control">
@@ -312,6 +322,19 @@
                         </div>
                         <div class="k-field-message">
                             Sube una imagen para reemplazar el logo actual. Se usa en el panel y en el flyer/QR para imprimir.
+                        </div>
+                    </div>
+
+                    <div class="k-field">
+                        <label class="k-label">Imagen de fondo del flyer</label>
+                        <div style="display:flex; align-items:center; gap:0.75rem;">
+                            <img id="edit_flyerbg_preview" src="" alt="Fondo actual"
+                                style="display:none; width:48px; height:48px; border-radius:10px; object-fit:cover; border:1px solid #e5e7eb;">
+                            <input type="file" name="flyer_bg" class="k-input" accept="image/*"
+                                style="height: auto; border-radius: 12px; border: 1px solid #d1d5db; padding: 0.45rem; width: 100%; font-size: 0.82rem; outline: none; background: #ffffff;">
+                        </div>
+                        <div class="k-field-message">
+                            Sube una imagen para reemplazar el fondo actual del flyer de este comercio. Si no hay una propia, se usa un fondo genérico.
                         </div>
                     </div>
 
