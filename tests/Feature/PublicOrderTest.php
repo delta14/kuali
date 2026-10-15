@@ -46,10 +46,20 @@ class PublicOrderTest extends TestCase
         ]);
     }
 
+    protected function scanToken(?int $businessId = null, ?int $tableId = null): string
+    {
+        return encrypt([
+            'business_id' => $businessId ?? $this->business->id,
+            'table_id'    => $tableId,
+            'issued_at'   => now()->timestamp,
+        ]);
+    }
+
     public function test_order_total_is_computed_from_the_real_product_price_not_the_client(): void
     {
         $response = $this->postJson(route('public.orders.store'), [
             'business_id' => $this->business->id,
+            'scan_token' => $this->scanToken(),
             'customer_name' => 'Juan Perez',
             'items' => [
                 [
@@ -106,6 +116,7 @@ class PublicOrderTest extends TestCase
 
         $response = $this->postJson(route('public.orders.store'), [
             'business_id' => $this->business->id,
+            'scan_token' => $this->scanToken(),
             'items' => [
                 ['product_id' => $foreignProduct->id, 'qty' => 1],
             ],
@@ -122,6 +133,7 @@ class PublicOrderTest extends TestCase
 
         $response = $this->postJson(route('public.orders.store'), [
             'business_id' => $this->business->id,
+            'scan_token' => $this->scanToken(),
             'items' => [
                 ['product_id' => $this->product->id, 'qty' => 1],
             ],
@@ -151,6 +163,7 @@ class PublicOrderTest extends TestCase
         $response = $this->postJson(route('public.orders.store'), [
             'business_id' => $this->business->id,
             'table_id' => $foreignTable->id,
+            'scan_token' => $this->scanToken(),
             'items' => [
                 ['product_id' => $this->product->id, 'qty' => 1],
             ],
@@ -159,5 +172,97 @@ class PublicOrderTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['table_id']);
         $this->assertSame(0, Order::count());
+    }
+
+    public function test_order_fails_without_a_scan_token(): void
+    {
+        $response = $this->postJson(route('public.orders.store'), [
+            'business_id' => $this->business->id,
+            'items' => [
+                ['product_id' => $this->product->id, 'qty' => 1],
+            ],
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['scan_token']);
+        $this->assertSame(0, Order::count());
+    }
+
+    public function test_order_fails_with_a_malformed_scan_token(): void
+    {
+        $response = $this->postJson(route('public.orders.store'), [
+            'business_id' => $this->business->id,
+            'scan_token' => 'esto-no-es-un-token-valido',
+            'items' => [
+                ['product_id' => $this->product->id, 'qty' => 1],
+            ],
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJson(['ok' => false, 'expired' => true]);
+        $this->assertSame(0, Order::count());
+    }
+
+    public function test_order_fails_with_a_scan_token_from_another_business(): void
+    {
+        $otherBusiness = Business::create([
+            'name' => 'Otro Negocio',
+            'slug' => 'otro-negocio-3',
+            'email_contact' => 'contacto@otro3.com',
+            'is_active' => true,
+        ]);
+
+        $response = $this->postJson(route('public.orders.store'), [
+            'business_id' => $this->business->id,
+            'scan_token' => $this->scanToken($otherBusiness->id),
+            'items' => [
+                ['product_id' => $this->product->id, 'qty' => 1],
+            ],
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJson(['ok' => false, 'expired' => true]);
+        $this->assertSame(0, Order::count());
+    }
+
+    public function test_order_fails_when_scan_token_is_older_than_the_expiry_window(): void
+    {
+        $staleToken = encrypt([
+            'business_id' => $this->business->id,
+            'table_id'    => null,
+            'issued_at'   => now()->subMinutes(\App\Http\Controllers\PublicOrderController::SCAN_EXPIRY_MINUTES + 1)->timestamp,
+        ]);
+
+        $response = $this->postJson(route('public.orders.store'), [
+            'business_id' => $this->business->id,
+            'scan_token' => $staleToken,
+            'items' => [
+                ['product_id' => $this->product->id, 'qty' => 1],
+            ],
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJson(['ok' => false, 'expired' => true]);
+        $this->assertSame(0, Order::count());
+    }
+
+    public function test_order_succeeds_with_a_fresh_scan_token_just_under_the_expiry_window(): void
+    {
+        $freshToken = encrypt([
+            'business_id' => $this->business->id,
+            'table_id'    => null,
+            'issued_at'   => now()->subMinutes(\App\Http\Controllers\PublicOrderController::SCAN_EXPIRY_MINUTES - 1)->timestamp,
+        ]);
+
+        $response = $this->postJson(route('public.orders.store'), [
+            'business_id' => $this->business->id,
+            'scan_token' => $freshToken,
+            'items' => [
+                ['product_id' => $this->product->id, 'qty' => 1],
+            ],
+        ]);
+
+        $response->assertOk();
+        $this->assertSame(1, Order::count());
     }
 }

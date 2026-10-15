@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -12,6 +13,13 @@ use Illuminate\Validation\ValidationException;
 
 class PublicOrderController extends Controller
 {
+    /**
+     * Minutos de vida del scan_token generado en PublicMenuController al
+     * renderizar el menú. Pasado este tiempo, se pide re-escanear el QR
+     * aunque el link siga siendo técnicamente válido.
+     */
+    public const SCAN_EXPIRY_MINUTES = 120;
+
     public function store(Request $request)
     {
         // business_id se valida primero para poder escopar las reglas de abajo a ESE negocio.
@@ -20,6 +28,7 @@ class PublicOrderController extends Controller
         $data = $request->validate([
             'business_id'    => ['required', 'integer', 'exists:businesses,id'],
             'table_id'       => ['nullable', 'integer', Rule::exists('tables', 'id')->where('business_id', $businessId)],
+            'scan_token'     => ['required', 'string'],
             'customer_name'  => ['nullable', 'string', 'max:100'],
             'customer_phone' => ['nullable', 'string', 'max:30'],
             'notes'          => ['nullable', 'string', 'max:500'],
@@ -36,6 +45,11 @@ class PublicOrderController extends Controller
             'items.*.qty'    => ['required', 'integer', 'min:1', 'max:50'],
             'items.*.notes'  => ['nullable', 'string', 'max:300'],
         ]);
+
+        $expiredResponse = $this->checkScanToken($data['scan_token'], $businessId, $data['table_id'] ?? null);
+        if ($expiredResponse) {
+            return $expiredResponse;
+        }
 
         try {
             return DB::transaction(function () use ($data, $businessId) {
@@ -117,5 +131,49 @@ class PublicOrderController extends Controller
                 'message' => 'No se pudo registrar el pedido. Intenta de nuevo.',
             ], 500);
         }
+    }
+
+    /**
+     * Verifica que el scan_token venga del propio negocio/mesa del pedido y
+     * que no haya pasado más de SCAN_EXPIRY_MINUTES desde que se generó al
+     * renderizar el menú. Devuelve una respuesta 422 si falla, o null si todo
+     * está en orden y se puede continuar con el guardado del pedido.
+     */
+    private function checkScanToken(string $scanToken, int $businessId, ?int $tableId)
+    {
+        try {
+            $payload = decrypt($scanToken);
+        } catch (DecryptException $e) {
+            return response()->json([
+                'ok'      => false,
+                'expired' => true,
+                'message' => 'Tu sesión del menú ya no es válida. Vuelve a escanear el código QR o recarga la página.',
+            ], 422);
+        }
+
+        if (
+            !is_array($payload)
+            || ($payload['business_id'] ?? null) !== $businessId
+            || ($payload['table_id'] ?? null) !== $tableId
+            || !isset($payload['issued_at'])
+        ) {
+            return response()->json([
+                'ok'      => false,
+                'expired' => true,
+                'message' => 'Tu sesión del menú ya no es válida. Vuelve a escanear el código QR o recarga la página.',
+            ], 422);
+        }
+
+        $ageMinutes = (now()->timestamp - (int) $payload['issued_at']) / 60;
+
+        if ($ageMinutes > self::SCAN_EXPIRY_MINUTES) {
+            return response()->json([
+                'ok'      => false,
+                'expired' => true,
+                'message' => 'Tu sesión del menú expiró. Vuelve a escanear el código QR o recarga la página.',
+            ], 422);
+        }
+
+        return null;
     }
 }

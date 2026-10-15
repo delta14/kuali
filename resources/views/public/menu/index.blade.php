@@ -23,6 +23,7 @@
     <body>
         <div id="pmConfig" data-order-endpoint="{{ route('public.orders.store') }}"
             data-business-id="{{ $business->id }}"
+            data-scan-token="{{ $scanToken }}"
             @if (!empty($table)) data-table-id="{{ $table->id }}" @endif>
         </div>
 

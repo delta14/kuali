@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const ORDER_ENDPOINT = configEl?.dataset.orderEndpoint || null;
     const BUSINESS_ID = configEl?.dataset.businessId || null;
     const TABLE_ID = configEl?.dataset.tableId || null;
+    const SCAN_TOKEN = configEl?.dataset.scanToken || null;
 
     // ====== Scroll a categoría al tocar el pill ======
     document.querySelectorAll(".pm-cat-pill").forEach((btn) => {
@@ -440,6 +441,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const payload = {
             business_id: parseInt(BUSINESS_ID, 10),
             table_id: TABLE_ID ? parseInt(TABLE_ID, 10) : null,
+            scan_token: SCAN_TOKEN,
             customer_name: customerName,
             customer_phone: customerPhone,
             notes: null,
@@ -472,9 +474,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!resp.ok || !data.ok) {
                 console.error("Error al guardar pedido", data);
-                alert(
-                    "Ocurrió un error al enviar tu pedido. Intenta nuevamente."
-                );
+                if (resp.status === 422 && data.expired) {
+                    alert(
+                        data.message ||
+                            "Tu sesión del menú expiró. Vuelve a escanear el código QR o recarga la página."
+                    );
+                } else {
+                    alert(
+                        "Ocurrió un error al enviar tu pedido. Intenta nuevamente."
+                    );
+                }
                 return;
             }
 

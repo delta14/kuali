@@ -8,6 +8,20 @@ use Illuminate\Http\Request;
 
 class PublicMenuController extends Controller
 {
+    /**
+     * Token firmado que certifica que el pedido viene de un escaneo reciente
+     * del QR/menú (no de un link viejo guardado o compartido). Se valida en
+     * PublicOrderController::store contra self::SCAN_EXPIRY_MINUTES.
+     */
+    private function buildScanToken(int $businessId, ?int $tableId): string
+    {
+        return encrypt([
+            'business_id' => $businessId,
+            'table_id'    => $tableId,
+            'issued_at'   => now()->timestamp,
+        ]);
+    }
+
     // Splash por slug: /m/{slug}
     public function splash(string $slug)
     {
@@ -52,6 +66,7 @@ class PublicMenuController extends Controller
             'categories' => $categories,
             'table'      => $table,
             'tableLabel' => $tableLabel,
+            'scanToken'  => $this->buildScanToken($business->id, $table?->id),
         ]);
     }
 
@@ -81,6 +96,7 @@ class PublicMenuController extends Controller
             'categories' => $categories,
             'table'      => $table,
             'tableLabel' => $tableLabel,
+            'scanToken'  => $this->buildScanToken($business->id, $table->id),
         ]);
     }
 }
