@@ -91,11 +91,18 @@
                         <span class="k-menu-label">Pedidos</span>
                     </a>
 
-                    <a href="{{ route('reports.sales') }}" 
+                    <a href="{{ route('reports.sales') }}"
                     class="k-menu-item  {{ request()->routeIs('reports.*') ? 'k-menu-item--active' : '' }} "
                     data-tooltip="Reportes">
                         <span class="k-menu-icon"><i class="ri-bar-chart-2-line"></i></span>
                         <span class="k-menu-label">Reportes</span>
+                    </a>
+
+                    <a href="{{ route('settings.edit') }}"
+                        class="k-menu-item {{ request()->routeIs('settings.*') ? 'k-menu-item--active' : '' }}"
+                        data-tooltip="Mi Negocio">
+                        <span class="k-menu-icon"><i class="ri-store-3-line"></i></span>
+                        <span class="k-menu-label">Mi Negocio</span>
                     </a>
 
                 @endif

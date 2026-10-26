@@ -1,0 +1,101 @@
+.bs-settings-card {
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 640px;
+}
+
+/* Mismos estilos de campo que usan los modales (.k-modal__body .k-field/.k-label/.k-input
+   en dashboard.css), replicados aquí porque esta página no vive dentro de un modal. */
+
+.bs-settings-card .k-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.bs-settings-card .k-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.bs-settings-card .k-input {
+    border-radius: 999px;
+    border: 1px solid #d1d5e5;
+    background: #f9fafc;
+    padding: 0.65rem 1rem;
+    font-size: 0.88rem;
+    color: #111827;
+    outline: none;
+    transition: border-color 0.18s ease-out, box-shadow 0.18s ease-out,
+        background-color 0.18s ease-out;
+}
+
+.bs-settings-card .k-input:focus {
+    background: #eef2ff;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.25);
+}
+
+.bs-settings-card .k-input::placeholder {
+    color: #a1a5b7;
+}
+
+.bs-settings-card .k-input:disabled {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.bs-settings-card .k-field-message {
+    font-size: 0.74rem;
+    margin-left: 0.2rem;
+    color: #9ca3af;
+}
+
+.bs-settings-card .k-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+@media (max-width: 640px) {
+    .bs-settings-card .k-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.bs-settings-upload {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.bs-settings-preview {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+}
+
+.bs-settings-upload input[type="file"] {
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    padding: 0.45rem;
+    width: 100%;
+    font-size: 0.82rem;
+    outline: none;
+    background: #ffffff;
+}
+
+.bs-settings-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.5rem;
+    border-top: 1px solid #f3f4f6;
+}

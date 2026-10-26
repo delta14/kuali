@@ -11,6 +11,7 @@ use App\Http\Controllers\Business\ProductController;
 use App\Http\Controllers\Business\TableController;
 use App\Http\Controllers\Business\OrderController;
 use App\Http\Controllers\Business\ReportController;
+use App\Http\Controllers\Business\SettingsController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -114,6 +115,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ===== Reportes (ventas) =====
     Route::get('/reports/sales', [ReportController::class, 'sales'])
         ->name('reports.sales');
+
+    // ===== Mi Negocio (datos, logo, fondo del flyer autoadministrables) =====
+    Route::get('/settings', [SettingsController::class, 'edit'])
+        ->name('settings.edit');
+
+    Route::put('/settings', [SettingsController::class, 'update'])
+        ->name('settings.update');
 });
 
 
