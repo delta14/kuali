@@ -68,6 +68,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
+            // variantes de precio
+            const editWrap = document.getElementById("editVariantsWrap");
+            const editToggle = document.getElementById("edit_variants_toggle");
+            if (editWrap && editToggle) {
+                let variants = [];
+                try {
+                    variants = JSON.parse(btn.dataset.variants || "[]");
+                } catch (e) {
+                    variants = [];
+                }
+
+                fillVariantRows(editWrap, variants);
+                editToggle.checked = variants.length > 0;
+                editWrap.style.display = variants.length > 0 ? "flex" : "none";
+            }
+
             openModal(modalEdit);
         });
     });
@@ -105,6 +121,60 @@ document.addEventListener("DOMContentLoaded", () => {
 
     attachClientValidation(formCreate);
     attachClientValidation(formEdit);
+
+    // =============================
+    // Variantes de precio (tamaños)
+    // =============================
+    function makeVariantRow(name = "", price = "") {
+        const row = document.createElement("div");
+        row.className = "js-variant-row";
+        row.style.cssText = "display:flex; gap:0.5rem; align-items:center;";
+        row.innerHTML = `
+            <input type="text" class="k-input" name="variants[][name]" placeholder="Nombre (ej. Chica)" value="${name.replace(/"/g, '&quot;')}"
+                style="flex:1; height:38px; border-radius:10px; border:1px solid #d1d5db; padding:0.4rem 0.7rem; font-size:0.85rem; outline:none;">
+            <input type="number" step="0.01" min="0" class="k-input" name="variants[][price]" placeholder="Precio" value="${price}"
+                style="width:110px; height:38px; border-radius:10px; border:1px solid #d1d5db; padding:0.4rem 0.7rem; font-size:0.85rem; outline:none;">
+            <button type="button" class="js-remove-variant-row" style="width:32px; height:32px; border-radius:50%; border:none; background:#fef2f2; color:#dc2626; cursor:pointer; flex-shrink:0;">
+                <i class="ri-close-line"></i>
+            </button>
+        `;
+        row.querySelector(".js-remove-variant-row").addEventListener("click", () => {
+            row.remove();
+        });
+        return row;
+    }
+
+    function fillVariantRows(wrap, variants) {
+        const rowsContainer = wrap.querySelector(".js-variants-rows");
+        if (!rowsContainer) return;
+        rowsContainer.innerHTML = "";
+        variants.forEach((v) => {
+            rowsContainer.appendChild(makeVariantRow(v.name || "", v.price ?? ""));
+        });
+    }
+
+    document.querySelectorAll(".js-variants-toggle").forEach((toggle) => {
+        toggle.addEventListener("change", () => {
+            const wrap = document.getElementById(toggle.dataset.wrap);
+            if (!wrap) return;
+            wrap.style.display = toggle.checked ? "flex" : "none";
+
+            const rowsContainer = wrap.querySelector(".js-variants-rows");
+            if (toggle.checked && rowsContainer && !rowsContainer.children.length) {
+                rowsContainer.appendChild(makeVariantRow());
+            }
+        });
+    });
+
+    document.querySelectorAll(".js-add-variant-row").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const wrap = btn.closest(".js-variants-wrap");
+            const rowsContainer = wrap?.querySelector(".js-variants-rows");
+            if (rowsContainer) {
+                rowsContainer.appendChild(makeVariantRow());
+            }
+        });
+    });
 
     // ELIMINAR con modal (si lo tienes)
     let deleteFormPending = null;

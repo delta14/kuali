@@ -38,6 +38,20 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class)->ordered();
+    }
+
+    /* =========================
+       HELPERS
+       ========================= */
+
+    public function hasVariants(): bool
+    {
+        return $this->variants->isNotEmpty();
+    }
+
     /* =========================
        SCOPES
        ========================= */

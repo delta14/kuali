@@ -120,7 +120,11 @@
 
                             {{-- Precio --}}
                             <td data-label="Precio" style="padding: 0.85rem 1rem; font-weight: 700; color: #111827; font-size: 0.92rem;">
-                                ${{ number_format($product->price, 2) }}
+                                @if ($product->variants->isNotEmpty())
+                                    Desde ${{ number_format($product->variants->min('price'), 2) }}
+                                @else
+                                    ${{ number_format($product->price, 2) }}
+                                @endif
                             </td>
 
                             {{-- Estado --}}
@@ -159,6 +163,7 @@
                                             data-description="{{ $product->description }}"
                                             data-active="{{ $product->is_active ? '1' : '0' }}"
                                             data-image-url="{{ $product->image_path ? asset('storage/' . $product->image_path) : '' }}"
+                                            data-variants="{{ $product->variants->map(fn($v) => ['name' => $v->name, 'price' => $v->price])->toJson() }}"
                                             style="width: 100%; border: none; background: transparent; color: #e0ddff; padding: 6px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; text-align: left;">
                                             <i class="ri-edit-line" style="font-size: 1rem;"></i>
                                             <span>Editar producto</span>
@@ -241,8 +246,28 @@
 
                     {{-- Precio --}}
                     <div class="k-field">
-                        <label class="k-label" style="font-weight: 600; color: #374151; font-size: 0.85rem; margin-bottom: 0.4rem;">Precio ($) *</label>
-                        <input type="number" step="0.01" min="0" name="price" class="k-input" placeholder="0.00" required style="height: 42px; border-radius: 12px; border: 1px solid #d1d5db; padding: 0.5rem 0.8rem; width: 100%; font-size: 0.88rem; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#4f46e5'">
+                        <label class="k-label" style="font-weight: 600; color: #374151; font-size: 0.85rem; margin-bottom: 0.4rem;">Precio único ($)</label>
+                        <input type="number" step="0.01" min="0" name="price" class="k-input" placeholder="0.00" style="height: 42px; border-radius: 12px; border: 1px solid #d1d5db; padding: 0.5rem 0.8rem; width: 100%; font-size: 0.88rem; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#4f46e5'">
+                    </div>
+                </div>
+
+                {{-- Variantes de precio (tamaños) --}}
+                <div class="k-field k-switch" style="display: flex; align-items: center; justify-content: space-between; background: #f9fafb; border-radius: 12px; padding: 0.75rem 1rem;">
+                    <label class="k-label" style="font-weight: 600; color: #374151; font-size: 0.85rem; margin: 0;">Tiene variantes de precio (tamaños, etc.)</label>
+                    <label class="k-switch__control" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" class="js-variants-toggle" data-wrap="createVariantsWrap" style="opacity: 0; width: 0; height: 0;">
+                        <span class="k-switch__slider" style="position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: .3s; border-radius: 34px;"></span>
+                        <span class="k-switch__text" style="display:none;"></span>
+                    </label>
+                </div>
+
+                <div class="js-variants-wrap" id="createVariantsWrap" style="display:none; flex-direction: column; gap: 0.6rem;">
+                    <div class="js-variants-rows" style="display:flex; flex-direction:column; gap:0.5rem;"></div>
+                    <button type="button" class="js-add-variant-row" style="align-self:flex-start; border-radius: 99px; border: 1px solid #e5e7eb; background:#fff; color:#4f46e5; font-weight:600; padding:0.4rem 1rem; font-size:0.8rem; cursor:pointer;">
+                        <i class="ri-add-line"></i> Agregar variante
+                    </button>
+                    <div class="k-field-message" style="font-size: 0.75rem; color: #6b7280;">
+                        Ej. Chica $120, Mediana $150, Grande $190. El precio único de arriba se vuelve opcional.
                     </div>
                 </div>
 
@@ -318,8 +343,28 @@
 
                     {{-- Precio --}}
                     <div class="k-field">
-                        <label class="k-label" style="font-weight: 600; color: #374151; font-size: 0.85rem; margin-bottom: 0.4rem;">Precio ($)</label>
-                        <input type="number" name="price" class="k-input" step="0.01" min="0" required style="height: 42px; border-radius: 12px; border: 1px solid #d1d5db; padding: 0.5rem 0.8rem; width: 100%; font-size: 0.88rem; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#4f46e5'">
+                        <label class="k-label" style="font-weight: 600; color: #374151; font-size: 0.85rem; margin-bottom: 0.4rem;">Precio único ($)</label>
+                        <input type="number" name="price" class="k-input" step="0.01" min="0" style="height: 42px; border-radius: 12px; border: 1px solid #d1d5db; padding: 0.5rem 0.8rem; width: 100%; font-size: 0.88rem; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#4f46e5'">
+                    </div>
+                </div>
+
+                {{-- Variantes de precio (tamaños) --}}
+                <div class="k-field k-switch" style="display: flex; align-items: center; justify-content: space-between; background: #f9fafb; border-radius: 12px; padding: 0.75rem 1rem;">
+                    <label class="k-label" style="font-weight: 600; color: #374151; font-size: 0.85rem; margin: 0;">Tiene variantes de precio (tamaños, etc.)</label>
+                    <label class="k-switch__control" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" class="js-variants-toggle" id="edit_variants_toggle" data-wrap="editVariantsWrap" style="opacity: 0; width: 0; height: 0;">
+                        <span class="k-switch__slider" style="position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: .3s; border-radius: 34px;"></span>
+                        <span class="k-switch__text" style="display:none;"></span>
+                    </label>
+                </div>
+
+                <div class="js-variants-wrap" id="editVariantsWrap" style="display:none; flex-direction: column; gap: 0.6rem;">
+                    <div class="js-variants-rows" style="display:flex; flex-direction:column; gap:0.5rem;"></div>
+                    <button type="button" class="js-add-variant-row" style="align-self:flex-start; border-radius: 99px; border: 1px solid #e5e7eb; background:#fff; color:#4f46e5; font-weight:600; padding:0.4rem 1rem; font-size:0.8rem; cursor:pointer;">
+                        <i class="ri-add-line"></i> Agregar variante
+                    </button>
+                    <div class="k-field-message" style="font-size: 0.75rem; color: #6b7280;">
+                        Ej. Chica $120, Mediana $150, Grande $190. El precio único de arriba se vuelve opcional.
                     </div>
                 </div>
 
