@@ -108,8 +108,8 @@ class OrderController extends Controller
 
     public function updateStatus(Request $request, Order $order)
     {
-        $business = $request->user()->currentBusiness;
-        abort_unless($business && $order->business_id === $business->business_id, 403);
+        $business = $this->currentBusiness($request);
+        abort_unless($order->business_id === $business->id, 403);
 
         $data = $request->validate([
             'status' => ['required', 'in:pending,in_progress,ready,delivered,cancelled'],
