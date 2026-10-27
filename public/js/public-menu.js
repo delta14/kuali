@@ -5,9 +5,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const configEl = document.getElementById("pmConfig");
     const ORDER_ENDPOINT = configEl?.dataset.orderEndpoint || null;
+    const ORDER_STATUS_URL_TPL = configEl?.dataset.orderStatusUrlTemplate || null;
     const BUSINESS_ID = configEl?.dataset.businessId || null;
     const TABLE_ID = configEl?.dataset.tableId || null;
     const SCAN_TOKEN = configEl?.dataset.scanToken || null;
+    const OPEN_ORDER_ID = configEl?.dataset.openOrderId || null;
 
     // ====== Scroll a categoría al tocar el pill ======
     document.querySelectorAll(".pm-cat-pill").forEach((btn) => {
@@ -102,6 +104,77 @@ document.addEventListener("DOMContentLoaded", () => {
         return "$" + Number(v).toFixed(2);
     }
 
+    // ======================================================
+    // ===== Estado en vivo de la cuenta (cierre de mesa) ====
+    // ======================================================
+
+    const openTabPillEl = document.getElementById("pmOpenTabPill");
+    let openOrderStatusIntervalId = null;
+
+    function buildOrderStatusUrl(orderId) {
+        if (!ORDER_STATUS_URL_TPL || !orderId) return null;
+        const base = ORDER_STATUS_URL_TPL.replace("__ID__", String(orderId));
+        return base + "?scan_token=" + encodeURIComponent(SCAN_TOKEN || "");
+    }
+
+    function stopOpenOrderStatusPolling() {
+        if (openOrderStatusIntervalId) {
+            clearInterval(openOrderStatusIntervalId);
+            openOrderStatusIntervalId = null;
+        }
+    }
+
+    function handleAccountClosed() {
+        stopOpenOrderStatusPolling();
+
+        try {
+            localStorage.removeItem(TICKET_KEY);
+        } catch (e) {
+            // localStorage puede no estar disponible (modo privado, etc.)
+        }
+
+        if (openTabPillEl) openTabPillEl.style.display = "none";
+
+        if (thanksText) {
+            thanksText.textContent =
+                "Tu cuenta ya se cerró. ¡Gracias por tu visita! 😊";
+        }
+        openKModal(thanksModal);
+    }
+
+    async function pollOpenOrderStatus(orderId) {
+        const url = buildOrderStatusUrl(orderId);
+        if (!url) return;
+
+        try {
+            const resp = await fetch(url, {
+                headers: { Accept: "application/json" },
+            });
+            const data = await resp.json().catch(() => null);
+
+            if (data && data.ok && data.closed) {
+                handleAccountClosed();
+            }
+        } catch (e) {
+            // sin conexión momentánea: lo reintentamos en el siguiente ciclo
+        }
+    }
+
+    function startOpenOrderStatusPolling(orderId) {
+        stopOpenOrderStatusPolling();
+        if (!orderId) return;
+
+        pollOpenOrderStatus(orderId);
+        openOrderStatusIntervalId = setInterval(
+            () => pollOpenOrderStatus(orderId),
+            15000
+        );
+    }
+
+    if (OPEN_ORDER_ID) {
+        startOpenOrderStatusPolling(parseInt(OPEN_ORDER_ID, 10));
+    }
+
     function getCart() {
         try {
             const raw = localStorage.getItem(CART_KEY);
@@ -179,7 +252,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const nameEl = document.createElement("div");
             nameEl.className = "pm-cart-item-name";
-            nameEl.textContent = item.name;
+            nameEl.textContent = item.variantName
+                ? `${item.name} (${item.variantName})`
+                : item.name;
             textWrap.appendChild(nameEl);
 
             if (item.note) {
@@ -232,6 +307,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const existing = cart.find(
             (i) =>
                 i.id === product.id &&
+                (i.variantId || null) === (product.variantId || null) &&
                 (i.note || "") === (note || "")
         );
 
@@ -243,6 +319,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 name: product.name,
                 price: product.price,
                 image: product.image || "",
+                variantId: product.variantId || null,
+                variantName: product.variantName || null,
                 qty,
                 note: note || "",
             });
@@ -450,6 +528,7 @@ document.addEventListener("DOMContentLoaded", () => {
             total: subtotal,
             items: cart.map((it) => ({
                 product_id: it.id,
+                variant_id: it.variantId || null,
                 name: it.name,
                 qty: it.qty,
                 unit_price: it.price,
@@ -506,9 +585,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Mostrar modal de gracias
             if (thanksText) {
-                thanksText.textContent =
-                    "Hemos recibido tu pedido. Te avisaremos cuando esté listo.";
+                thanksText.textContent = data.merged
+                    ? `Agregamos esto a tu cuenta de la mesa. Llevas $${Number(
+                          totalFromServer
+                      ).toFixed(2)} hasta ahora.`
+                    : "Hemos recibido tu pedido. Te avisaremos cuando esté listo.";
             }
+
+            const openTabPill = document.getElementById("pmOpenTabPill");
+            if (openTabPill) {
+                openTabPill.querySelector("span").textContent =
+                    "Llevas $" + Number(totalFromServer).toFixed(2) + " en tu cuenta";
+                openTabPill.style.display = "inline-flex";
+            }
+
+            startOpenOrderStatusPolling(orderId);
+
             openKModal(thanksModal);
         } catch (err) {
             console.error(err);
@@ -550,6 +642,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const modalNote = document.getElementById("pmModalNote");
     const modalTotal = document.getElementById("pmModalTotal");
     const qtyButtons = document.querySelectorAll(".pm-stepper-btn");
+    const variantRow = document.getElementById("pmVariantRow");
+    const variantPillsEl = document.getElementById("pmVariantPills");
 
     function sanitizeQty(value) {
         const raw = parseInt(value, 10);
@@ -558,10 +652,55 @@ document.addEventListener("DOMContentLoaded", () => {
         return raw;
     }
 
+    function currentUnitPrice() {
+        if (!currentProduct) return 0;
+        return currentProduct.selectedVariant
+            ? currentProduct.selectedVariant.price
+            : currentProduct.price;
+    }
+
     function recalcModalTotal() {
         if (!currentProduct) return;
         const qty = sanitizeQty(modalQtyInput.value || "1");
-        modalTotal.textContent = formatMoney(qty * currentProduct.price);
+        modalTotal.textContent = formatMoney(qty * currentUnitPrice());
+        if (modalPriceTop) {
+            modalPriceTop.textContent = formatMoney(currentUnitPrice());
+        }
+    }
+
+    function renderVariantPills(product) {
+        if (!variantRow || !variantPillsEl) return;
+
+        const variants = product.variants || [];
+        if (!variants.length) {
+            variantRow.style.display = "none";
+            variantPillsEl.innerHTML = "";
+            return;
+        }
+
+        variantRow.style.display = "flex";
+        variantPillsEl.innerHTML = "";
+
+        variants.forEach((variant, idx) => {
+            const pill = document.createElement("button");
+            pill.type = "button";
+            pill.className = "pm-variant-pill" + (idx === 0 ? " is-active" : "");
+            pill.textContent = variant.name;
+            pill.dataset.variantId = variant.id;
+
+            pill.addEventListener("click", () => {
+                variantPillsEl
+                    .querySelectorAll(".pm-variant-pill")
+                    .forEach((p) => p.classList.remove("is-active"));
+                pill.classList.add("is-active");
+                currentProduct.selectedVariant = variant;
+                recalcModalTotal();
+            });
+
+            variantPillsEl.appendChild(pill);
+        });
+
+        currentProduct.selectedVariant = variants[0];
     }
 
     function updateQtyDisplay(q) {
@@ -599,10 +738,6 @@ document.addEventListener("DOMContentLoaded", () => {
         modalTitle.textContent = product.name;
         modalDesc.textContent = product.description || "";
 
-        if (modalPriceTop) {
-            modalPriceTop.textContent = formatMoney(product.price);
-        }
-
         if (product.image) {
             modalImg.src = product.image;
             modalImg.style.display = "block";
@@ -610,6 +745,7 @@ document.addEventListener("DOMContentLoaded", () => {
             modalImg.style.display = "none";
         }
 
+        renderVariantPills(product);
         updateQtyDisplay(1);
         modalNote.value = "";
         recalcModalTotal();
@@ -624,12 +760,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll(".js-add-product").forEach((btn) => {
         btn.addEventListener("click", () => {
+            let variants = [];
+            try {
+                variants = JSON.parse(btn.dataset.variants || "[]");
+            } catch (e) {
+                variants = [];
+            }
+
             const product = {
                 id: parseInt(btn.dataset.id, 10),
                 name: btn.dataset.name,
                 price: parseFloat(btn.dataset.price),
                 description: btn.dataset.description || "",
                 image: btn.dataset.image || "",
+                variants,
             };
             openModal(product);
         });
@@ -651,8 +795,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 {
                     id: currentProduct.id,
                     name: currentProduct.name,
-                    price: currentProduct.price,
+                    price: currentUnitPrice(),
                     image: currentProduct.image || "",
+                    variantId: currentProduct.selectedVariant?.id || null,
+                    variantName: currentProduct.selectedVariant?.name || null,
                 },
                 qty,
                 note

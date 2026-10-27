@@ -84,6 +84,26 @@ body {
     color: var(--pm-primary) !important;
 }
 
+.pm-open-tab-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 99px;
+    background: rgba(16, 185, 129, 0.08);
+    color: #0f9d6e;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 0.45rem;
+    margin-left: 0.4rem;
+    border: 1px solid rgba(16, 185, 129, 0.12);
+}
+
+.pm-open-tab-pill i {
+    font-size: 0.95rem;
+    color: #0f9d6e !important;
+}
+
 /* Shopping Cart Button */
 .pm-menu-btn {
     width: 46px;
@@ -561,6 +581,32 @@ body {
     font-weight: 700;
     min-width: 16px;
     text-align: center;
+}
+
+.pm-variant-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.pm-variant-pill {
+    border: 1px solid var(--pm-border);
+    background: #ffffff;
+    border-radius: 99px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #554868;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pm-variant-pill.is-active {
+    background: linear-gradient(135deg, var(--pm-primary) 0%, var(--pm-secondary) 100%);
+    border-color: transparent;
+    color: var(--pm-white);
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.2);
 }
 
 .pm-modal__row {

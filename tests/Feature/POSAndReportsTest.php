@@ -136,18 +136,25 @@ class POSAndReportsTest extends TestCase
             'placed_at' => now(),
         ]);
 
-        // La primera petición con last_id = 0 debe inicializar el last_id al id del pedido más alto
+        // La primera petición (sin "since") debe inicializar el cursor sin reportar nada,
+        // aunque ya exista un pedido previo a que el panel estuviera abierto.
         $response = $this
             ->actingAs($this->user)
-            ->get(route('orders.check-new', ['last_id' => 0]));
+            ->get(route('orders.check-new'));
 
         $response->assertOk();
         $response->assertJson([
             'ok' => true,
             'has_new' => false,
-            'last_id' => $order1->id,
             'orders' => []
         ]);
+
+        $since1 = $response->json('since');
+
+        // Los timestamps de MySQL/sqlite tienen resolución de 1 segundo; sin
+        // avanzar el reloj de prueba, order2 podría guardarse con el mismo
+        // updated_at que el cursor "since1" y el ">" no lo detectaría.
+        \Illuminate\Support\Carbon::setTestNow(now()->addSeconds(2));
 
         // 2. Crear un segundo pedido nuevo posterior
         $order2 = \App\Models\Order::create([
@@ -160,34 +167,36 @@ class POSAndReportsTest extends TestCase
             'placed_at' => now(),
         ]);
 
-        // La segunda petición con last_id = $order1->id debe detectar el nuevo pedido $order2
+        // La segunda petición con since = $since1 debe detectar el nuevo pedido $order2
         $response2 = $this
             ->actingAs($this->user)
-            ->get(route('orders.check-new', ['last_id' => $order1->id]));
+            ->get(route('orders.check-new', ['since' => $since1]));
 
         $response2->assertOk();
         $response2->assertJson([
             'ok' => true,
             'has_new' => true,
-            'last_id' => $order2->id,
         ]);
-        
+
         $response2->assertJsonFragment([
             'id' => $order2->id,
             'customer_name' => 'Maria Lopez',
             'total' => 200.00,
         ]);
 
-        // 3. Si volvemos a consultar con el last_id actualizado ($order2->id), no debe reportar nada nuevo
+        $since2 = $response2->json('since');
+
+        // 3. Si volvemos a consultar con el since actualizado, no debe reportar nada nuevo
         $response3 = $this
             ->actingAs($this->user)
-            ->get(route('orders.check-new', ['last_id' => $order2->id]));
+            ->get(route('orders.check-new', ['since' => $since2]));
+
+        \Illuminate\Support\Carbon::setTestNow();
 
         $response3->assertOk();
         $response3->assertJson([
             'ok' => true,
             'has_new' => false,
-            'last_id' => $order2->id,
             'orders' => []
         ]);
     }

@@ -22,8 +22,10 @@
 
     <body>
         <div id="pmConfig" data-order-endpoint="{{ route('public.orders.store') }}"
+            data-order-status-url-template="{{ route('public.orders.status', ['order' => '__ID__']) }}"
             data-business-id="{{ $business->id }}"
             data-scan-token="{{ $scanToken }}"
+            @if (!empty($openOrderId)) data-open-order-id="{{ $openOrderId }}" @endif
             @if (!empty($table)) data-table-id="{{ $table->id }}" @endif>
         </div>
 
@@ -42,6 +44,12 @@
                                 <span>{{ $tableLabel }}</span>
                             </div>
                         @endif
+
+                        <div class="pm-open-tab-pill" id="pmOpenTabPill"
+                            style="{{ is_null($openOrderTotal) ? 'display:none;' : '' }}">
+                            <i class="ri-bill-line"></i>
+                            <span>Llevas ${{ number_format($openOrderTotal ?? 0, 2) }} en tu cuenta</span>
+                        </div>
                     </div>
 
                     {{-- Botón carrito en header --}}
@@ -133,7 +141,11 @@
                                         @endif
                                         <div class="pm-card-bottom">
                                             <span class="pm-card-price">
-                                                ${{ number_format($product->price, 2) }}
+                                                @if ($product->variants->isNotEmpty())
+                                                    Desde ${{ number_format($product->variants->min('price'), 2) }}
+                                                @else
+                                                    ${{ number_format($product->price, 2) }}
+                                                @endif
                                             </span>
 
                                             {{-- Botón + con data-* para el detalle y el carrito --}}
@@ -141,7 +153,8 @@
                                                 data-id="{{ $product->id }}" data-name="{{ $product->name }}"
                                                 data-price="{{ $product->price }}"
                                                 data-description="{{ $product->description }}"
-                                                data-image="{{ $product->image_path ? asset('storage/' . $product->image_path) : '' }}">
+                                                data-image="{{ $product->image_path ? asset('storage/' . $product->image_path) : '' }}"
+                                                data-variants="{{ $product->variants->map(fn($v) => ['id' => $v->id, 'name' => $v->name, 'price' => (float) $v->price])->toJson() }}">
                                                 <i class="ri-add-line"></i>
                                             </button>
                                         </div>
@@ -177,6 +190,11 @@
                 </div>
 
                 <p class="pm-modal__description" id="pmModalDescription"></p>
+
+                <div class="pm-modal-row" id="pmVariantRow" style="display:none;">
+                    <span class="pm-modal-label">Tamaño</span>
+                    <div class="pm-variant-pills" id="pmVariantPills"></div>
+                </div>
 
                 <div class="pm-modal-row">
                     <span class="pm-modal-label">Cantidad</span>

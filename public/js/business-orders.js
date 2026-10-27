@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ---------- Config ----------
     const cfgEl = document.getElementById("kOrdersConfig");
     const completeUrlTpl = cfgEl ? cfgEl.dataset.completeUrlTemplate : "";
+    const assignTableUrlTpl = cfgEl ? cfgEl.dataset.assignTableUrlTemplate : "";
 
     const searchInput = document.getElementById("kOrdersSearch");
     const rows = Array.from(document.querySelectorAll(".js-order-row"));
@@ -26,11 +27,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // Modales
     const modalConfirm = document.getElementById("modalConfirmCompleteOrder");
     const modalMsg = document.getElementById("modalOrdersMessage");
+    const modalAssignTable = document.getElementById("modalAssignTable");
 
     const confirmText = document.getElementById("kCompleteConfirmText");
     const msgTitle = document.getElementById("kMsgTitle");
     const msgBody = document.getElementById("kMsgBody");
     const msgWhatsappBtn = document.getElementById("kMsgWhatsappBtn");
+
+    const btnAssignTable = document.getElementById("kAssignTableBtn");
+    const selectAssignTable = document.getElementById("kAssignTableSelect");
 
     let selectedOrderId = null;
     let selectedRow = null;
@@ -67,6 +72,13 @@ document.addEventListener("DOMContentLoaded", () => {
         ?.querySelectorAll(".js-modal-msg-close")
         .forEach((btn) =>
             btn.addEventListener("click", () => closeModal(modalMsg))
+        );
+
+    // Cerrar modal de asignar mesa
+    modalAssignTable
+        ?.querySelectorAll(".js-modal-close")
+        .forEach((btn) =>
+            btn.addEventListener("click", () => closeModal(modalAssignTable))
         );
 
     // ---------- Render detalle ----------
@@ -206,11 +218,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (btnComplete) {
             if (status === "completed") {
                 btnComplete.disabled = true;
-                btnComplete.textContent = "Pedido completado";
+                btnComplete.textContent = "Cuenta cerrada";
                 btnComplete.classList.add("k-btn-disabled");
             } else {
                 btnComplete.disabled = false;
-                btnComplete.textContent = "Marcar como pagado / completar";
+                btnComplete.textContent = "Cerrar cuenta";
                 btnComplete.classList.remove("k-btn-disabled");
             }
             btnComplete.dataset.status = status;
@@ -257,15 +269,15 @@ document.addEventListener("DOMContentLoaded", () => {
         if (status === "completed") {
             msgTitle.textContent = "Aviso";
             msgBody.textContent =
-                "Este pedido ya está marcado como completado.";
+                "La cuenta de este pedido ya está cerrada.";
             msgWhatsappBtn.style.display = "none";
             openModal(modalMsg);
             return;
         }
 
-        confirmText.textContent = `¿Marcar el pedido ${
+        confirmText.textContent = `¿Cerrar la cuenta del pedido ${
             elFolio?.textContent || ""
-        } como pagado/completado?`;
+        }?`;
         pendingCompleteId = selectedOrderId;
         openModal(modalConfirm);
     });
@@ -388,9 +400,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 // Configurar modal de éxito
-                msgTitle.textContent = "Pedido completado";
+                msgTitle.textContent = "Cuenta cerrada";
                 msgBody.textContent =
-                    data.message || "El pedido se marcó como completado.";
+                    data.message || "Se cerró la cuenta del pedido.";
 
                 if (data.whatsapp_url) {
                     msgWhatsappBtn.href = data.whatsapp_url;
@@ -410,6 +422,109 @@ document.addEventListener("DOMContentLoaded", () => {
                 openModal(modalMsg);
             } finally {
                 pendingCompleteId = null;
+            }
+        });
+
+    // ---------- Asignar / cambiar mesa ----------
+    function buildAssignTableUrl(orderId) {
+        if (!assignTableUrlTpl) return "";
+        return assignTableUrlTpl.replace("__ID__", String(orderId));
+    }
+
+    btnAssignTable?.addEventListener("click", () => {
+        if (!selectedOrderId) {
+            msgTitle.textContent = "Aviso";
+            msgBody.textContent = "Selecciona primero un pedido de la lista.";
+            msgWhatsappBtn.style.display = "none";
+            openModal(modalMsg);
+            return;
+        }
+
+        if (selectAssignTable) {
+            selectAssignTable.value = selectedRow?.dataset.tableId || "";
+        }
+
+        openModal(modalAssignTable);
+    });
+
+    modalAssignTable
+        ?.querySelector(".js-assign-table-confirm")
+        ?.addEventListener("click", async () => {
+            if (!selectedOrderId || !selectAssignTable) {
+                closeModal(modalAssignTable);
+                return;
+            }
+
+            const url = buildAssignTableUrl(selectedOrderId);
+            if (!url) {
+                closeModal(modalAssignTable);
+                return;
+            }
+
+            const tableId = selectAssignTable.value || null;
+
+            try {
+                const resp = await fetch(url, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRF-TOKEN":
+                            document
+                                .querySelector('meta[name="csrf-token"]')
+                                ?.getAttribute("content") || "",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({ table_id: tableId }),
+                });
+
+                const data = await resp.json().catch(() => null);
+
+                closeModal(modalAssignTable);
+
+                if (!resp.ok || !data || !data.ok) {
+                    console.error("Respuesta no OK al asignar mesa", data);
+                    msgTitle.textContent = "Error";
+                    msgBody.textContent =
+                        data?.message || "No se pudo asignar la mesa.";
+                    msgWhatsappBtn.style.display = "none";
+                    openModal(modalMsg);
+                    return;
+                }
+
+                if (
+                    selectedRow &&
+                    String(selectedRow.dataset.orderId) ===
+                        String(selectedOrderId)
+                ) {
+                    const newMesa = data.order?.table_name || "Sin mesa";
+
+                    selectedRow.dataset.tableId = data.order?.table_id || "";
+                    selectedRow.dataset.mesa = newMesa;
+                    selectedRow.dataset.search = [
+                        selectedRow.dataset.folio || "",
+                        newMesa,
+                        selectedRow.dataset.fecha || "",
+                    ].join(" ");
+
+                    if (elMesa) elMesa.textContent = newMesa;
+
+                    const mesaLabel = selectedRow.querySelector("h4 span:first-child");
+                    if (mesaLabel) mesaLabel.textContent = data.order?.table_name || "Sin mesa";
+                }
+
+                msgTitle.textContent = "Mesa actualizada";
+                msgBody.textContent =
+                    data.message || "Se actualizó la mesa del pedido.";
+                msgWhatsappBtn.style.display = "none";
+                openModal(modalMsg);
+            } catch (e) {
+                console.error("Error al asignar mesa", e);
+                closeModal(modalAssignTable);
+                msgTitle.textContent = "Error";
+                msgBody.textContent = "Ocurrió un error al asignar la mesa.";
+                msgWhatsappBtn.style.display = "none";
+                openModal(modalMsg);
             }
         });
 

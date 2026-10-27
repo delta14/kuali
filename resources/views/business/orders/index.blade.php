@@ -6,7 +6,9 @@
 <div class="k-main-inner k-premium-container">
 
     {{-- CONFIG para JS --}}
-    <div id="kOrdersConfig" data-complete-url-template="{{ route('orders.complete', ['order' => '__ID__']) }}">
+    <div id="kOrdersConfig"
+        data-complete-url-template="{{ route('orders.complete', ['order' => '__ID__']) }}"
+        data-assign-table-url-template="{{ route('orders.assign-table', ['order' => '__ID__']) }}">
     </div>
 
     {{-- TOOLBAR --}}
@@ -94,9 +96,10 @@
                         })->values() ?? collect();
                     @endphp
 
-                    <button type="button" class="k-premium-order-row js-order-row" 
+                    <button type="button" class="k-premium-order-row js-order-row"
                             data-order-id="{{ $order->id }}"
-                            data-status="{{ $order->status }}" 
+                            data-table-id="{{ $order->table_id }}"
+                            data-status="{{ $order->status }}"
                             data-status-label="{{ $estadoTexto }}"
                             data-folio="#{{ $folio }}" 
                             data-mesa="{{ $mesa }}"
@@ -181,7 +184,13 @@
                 <div style="background: #fafafa; border: 1px solid #f3f4f6; border-radius: 16px; padding: 1rem; display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.85rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="color: #6b7280; font-weight: 500;">Mesa / Ubicación:</span>
-                        <strong id="od_mesa" style="color: #111827;">Mesa 1</strong>
+                        <span style="display: flex; align-items: center; gap: 0.5rem;">
+                            <strong id="od_mesa" style="color: #111827;">Mesa 1</strong>
+                            <button type="button" id="kAssignTableBtn" title="Asignar / cambiar mesa"
+                                style="width: 26px; height: 26px; border-radius: 50%; border: none; background: #f3f4f6; color: #4b5563; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
+                                <i class="ri-pencil-line" style="font-size: 0.8rem;"></i>
+                            </button>
+                        </span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="color: #6b7280; font-weight: 500;">Hora del pedido:</span>
@@ -218,7 +227,7 @@
 
                     <button type="button" class="k-btn-primary" id="kOrderCompleteBtn" style="width: 100%; border-radius: 99px; background: #4f46e5; border: none; color: #ffffff; font-weight: 600; padding: 0.8rem 1.5rem; font-size: 0.9rem; cursor: pointer; box-shadow: 0 6px 20px rgba(79, 70, 229, 0.25); display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;">
                         <i class="ri-checkbox-circle-line"></i>
-                        <span>Marcar como completado</span>
+                        <span>Cerrar cuenta</span>
                     </button>
                 </div>
 
@@ -238,19 +247,50 @@
         <div class="k-modal__header" style="border-bottom: 1px solid #f3f4f6; padding: 1.25rem 1.5rem;">
             <h2 style="font-size: 1.2rem; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="ri-checkbox-circle-line" style="color: #10b981; font-size: 1.3rem;"></i>
-                <span>Completar pedido</span>
+                <span>Cerrar cuenta</span>
             </h2>
             <button type="button" class="k-modal__close js-modal-close" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #f3f4f6; border: none; cursor: pointer;">
                 <i class="ri-close-line" style="font-size: 1.1rem; color: #4b5563;"></i>
             </button>
         </div>
         <div class="k-modal__body" style="padding: 1.5rem; font-size: 0.9rem; color: #4b5563; line-height: 1.5;">
-            <p id="kCompleteConfirmText" style="margin: 0 0 0.5rem 0; font-weight: 600; color: #1f2937;">¿Marcar este pedido como pagado/completado?</p>
-            <p style="margin: 0;">Esta comanda se registrará en las métricas de ingresos e historial de ventas.</p>
+            <p id="kCompleteConfirmText" style="margin: 0 0 0.5rem 0; font-weight: 600; color: #1f2937;">¿Cerrar la cuenta de este pedido?</p>
+            <p style="margin: 0;">Una vez cerrada, los nuevos pedidos de esta mesa ya no se agregarán aquí sino que iniciarán una cuenta nueva. Esta comanda se registrará en las métricas de ingresos e historial de ventas.</p>
         </div>
         <div class="k-modal__footer" style="border-top: 1px solid #f3f4f6; padding: 1rem 1.5rem; display: flex; justify-content: flex-end; gap: 0.5rem; background: #fafafa; border-radius: 0 0 24px 24px;">
             <button type="button" class="k-btn-secondary js-complete-cancel" style="border-radius: 99px; border: 1px solid #e5e7eb; background: #ffffff; color: #4b5563; font-weight: 500; padding: 0.5rem 1.25rem; font-size: 0.85rem; cursor: pointer;">Cancelar</button>
             <button type="button" class="k-btn-primary js-complete-confirm" style="border-radius: 99px; background: #10b981; border: none; color: #ffffff; font-weight: 600; padding: 0.5rem 1.25rem; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);">Aceptar</button>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL ASIGNAR / CAMBIAR MESA --}}
+<div class="k-modal" id="modalAssignTable">
+    <div class="k-modal__backdrop js-modal-close" style="background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px);"></div>
+    <div class="k-modal__dialog" style="border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); border: 1px solid rgba(229, 231, 235, 0.5); max-width: 440px;">
+        <div class="k-modal__header" style="border-bottom: 1px solid #f3f4f6; padding: 1.25rem 1.5rem;">
+            <h2 style="font-size: 1.2rem; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="ri-map-pin-line" style="color: #4f46e5; font-size: 1.3rem;"></i>
+                <span>Asignar mesa</span>
+            </h2>
+            <button type="button" class="k-modal__close js-modal-close" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #f3f4f6; border: none; cursor: pointer;">
+                <i class="ri-close-line" style="font-size: 1.1rem; color: #4b5563;"></i>
+            </button>
+        </div>
+        <div class="k-modal__body" style="padding: 1.5rem; font-size: 0.9rem; color: #4b5563; line-height: 1.5;">
+            <p style="margin: 0 0 0.75rem 0;">
+                Si el cliente pidió en mostrador y ya se sentó, elige su mesa para que un futuro escaneo del QR en esa mesa se agregue a esta misma cuenta.
+            </p>
+            <select id="kAssignTableSelect" class="k-input" style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid #e5e7eb; padding: 0 0.75rem; background: #ffffff;">
+                <option value="">Sin mesa (mostrador / para llevar)</option>
+                @foreach($tables as $table)
+                    <option value="{{ $table->id }}">{{ $table->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="k-modal__footer" style="border-top: 1px solid #f3f4f6; padding: 1rem 1.5rem; display: flex; justify-content: flex-end; gap: 0.5rem; background: #fafafa; border-radius: 0 0 24px 24px;">
+            <button type="button" class="k-btn-secondary js-modal-close" style="border-radius: 99px; border: 1px solid #e5e7eb; background: #ffffff; color: #4b5563; font-weight: 500; padding: 0.5rem 1.25rem; font-size: 0.85rem; cursor: pointer;">Cancelar</button>
+            <button type="button" class="k-btn-primary js-assign-table-confirm" style="border-radius: 99px; background: #4f46e5; border: none; color: #ffffff; font-weight: 600; padding: 0.5rem 1.25rem; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);">Guardar</button>
         </div>
     </div>
 </div>

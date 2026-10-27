@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Business;
 use App\Models\Category;
 use App\Models\Order;
+use App\Models\Table;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -51,7 +52,12 @@ class OrderController extends Controller
 
         $orders = $ordersQuery->paginate(15);
 
-        return view('business.orders.index', compact('business', 'orders', 'status', 'date'));
+        $tables = Table::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        return view('business.orders.index', compact('business', 'orders', 'status', 'date', 'tables'));
     }
 
     public function show(Request $request, Order $order)
@@ -122,6 +128,48 @@ class OrderController extends Controller
             ->with('success', 'Estado del pedido actualizado correctamente.');
     }
 
+    /**
+     * Asignar o cambiar la mesa de un pedido existente. Pensado para el caso
+     * de mostrador: el cliente pide en la barra y luego se sienta, y el
+     * negocio marca en qué mesa quedó para que un futuro escaneo de QR en
+     * esa mesa se fusione con esta misma cuenta.
+     */
+    public function assignTable(Request $request, Order $order)
+    {
+        $business = $this->currentBusiness($request);
+        abort_unless($order->business_id === $business->id, 403);
+
+        $data = $request->validate([
+            'table_id' => ['nullable', 'integer', 'exists:tables,id'],
+        ]);
+
+        $tableId = $data['table_id'] ?? null;
+        $table = null;
+
+        if ($tableId) {
+            $table = Table::where('id', $tableId)
+                ->where('business_id', $business->id)
+                ->first();
+
+            abort_unless($table, 403, 'Esa mesa no pertenece a tu negocio.');
+        }
+
+        $order->table_id = $table?->id;
+        $order->save();
+
+        return response()->json([
+            'ok' => true,
+            'message' => $table
+                ? "Pedido asignado a {$table->name}."
+                : 'Pedido movido a mostrador (sin mesa).',
+            'order' => [
+                'id' => $order->id,
+                'table_id' => $order->table_id,
+                'table_name' => $table?->name ?? 'Sin mesa',
+            ],
+        ]);
+    }
+
     public function markAsCompleted(Order $order)
     {
         if ($order->status === 'completed') {
@@ -154,7 +202,7 @@ class OrderController extends Controller
         if ($order->status === 'completed') {
             return response()->json([
                 'ok' => false,
-                'message' => 'Este pedido ya está marcado como completado.',
+                'message' => 'La cuenta de este pedido ya está cerrada.',
             ], 422);
         }
 
@@ -190,7 +238,7 @@ class OrderController extends Controller
         // ===== Respuesta esperada por business-orders.js =====
         return response()->json([
             'ok' => true,
-            'message' => 'El pedido se marcó como completado.',
+            'message' => 'Se cerró la cuenta del pedido.',
             'order' => [
                 'id' => $order->id,
                 'status' => $order->status,
@@ -297,46 +345,61 @@ class OrderController extends Controller
     {
         try {
             $business = $this->currentBusiness($request);
-            $lastId = (int) $request->query('last_id', 0);
+            $since = $request->query('since');
+            $sinceAt = $since ? \Illuminate\Support\Carbon::parse($since) : null;
 
-            if ($lastId === 0) {
-                $latestOrder = Order::where('business_id', $business->id)
-                    ->latest('id')
-                    ->first();
+            $baseQuery = Order::where('business_id', $business->id)
+                ->where('source', 'qr')
+                ->where('status', 'pending');
+
+            if (! $sinceAt) {
+                // Primera llamada: fijamos el cursor en lo más reciente que ya
+                // exista (si lo hay), para no notificar algo que ya estaba ahí
+                // antes de que el panel estuviera abierto. Usamos el propio
+                // updated_at de la BD (no now() de PHP) para que el siguiente
+                // ">" compare contra el mismo reloj/precisión que guardamos.
+                $latest = (clone $baseQuery)->max('updated_at');
 
                 return response()->json([
                     'ok' => true,
                     'has_new' => false,
-                    'last_id' => $latestOrder ? $latestOrder->id : 0,
-                    'orders' => []
+                    'since' => $latest ? \Illuminate\Support\Carbon::parse($latest)->toISOString() : now()->toISOString(),
+                    'orders' => [],
                 ]);
             }
 
-            $newOrders = Order::where('business_id', $business->id)
-                ->where('source', 'qr')
-                ->where('status', 'pending')
-                ->where('id', '>', $lastId)
+            // updated_at (no id) para detectar también cuando una mesa con
+            // cuenta ya abierta agrega más productos (se fusiona en el mismo
+            // pedido, no genera un id nuevo, pero sí actualiza el registro).
+            $updatedOrders = (clone $baseQuery)
+                ->where('updated_at', '>', $sinceAt)
                 ->with('table')
-                ->orderBy('id', 'asc')
+                ->orderBy('updated_at', 'asc')
                 ->get();
 
-            $formattedOrders = $newOrders->map(function ($order) {
+            $formattedOrders = $updatedOrders->map(function ($order) {
                 return [
                     'id' => $order->id,
                     'customer_name' => $order->customer_name ?: 'Cliente',
                     'table_name' => $order->table?->name ?? 'Sin mesa',
                     'total' => (float) $order->total,
                     'placed_at_human' => $order->placed_at ? $order->placed_at->diffForHumans() : 'hace un momento',
+                    'is_new' => $order->created_at->equalTo($order->updated_at),
                 ];
             });
 
-            $nextLastId = $newOrders->isNotEmpty() ? $newOrders->last()->id : $lastId;
+            // Avanzamos el cursor hasta el updated_at real más reciente que
+            // encontramos (no now()), para no perder una actualización que
+            // ocurra justo entre que consultamos y respondemos.
+            $nextSinceAt = $updatedOrders->isNotEmpty()
+                ? $updatedOrders->last()->updated_at
+                : $sinceAt;
 
             return response()->json([
                 'ok' => true,
-                'has_new' => $newOrders->isNotEmpty(),
-                'last_id' => $nextLastId,
-                'orders' => $formattedOrders
+                'has_new' => $updatedOrders->isNotEmpty(),
+                'since' => $nextSinceAt->toISOString(),
+                'orders' => $formattedOrders,
             ]);
         } catch (\Throwable $e) {
             report($e);

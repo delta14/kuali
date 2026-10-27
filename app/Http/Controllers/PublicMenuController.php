@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Business;
+use App\Models\Order;
 use App\Models\Table;
 use Illuminate\Http\Request;
 
@@ -20,6 +21,25 @@ class PublicMenuController extends Controller
             'table_id'    => $tableId,
             'issued_at'   => now()->timestamp,
         ]);
+    }
+
+    /**
+     * Pedido abierto de esta mesa (si lo hay), usando el mismo criterio de
+     * "abierto" que PublicOrderController::store para decidir si un pedido
+     * nuevo se mezcla con uno existente. Null si no hay mesa o no hay un
+     * pedido abierto todavía.
+     */
+    private function openOrder(int $businessId, ?int $tableId): ?Order
+    {
+        if (! $tableId) {
+            return null;
+        }
+
+        return Order::where('business_id', $businessId)
+            ->where('table_id', $tableId)
+            ->where('status', 'pending')
+            ->where('placed_at', '>=', now()->subMinutes(PublicOrderController::SCAN_EXPIRY_MINUTES))
+            ->first();
     }
 
     // Splash por slug: /m/{slug}
@@ -43,6 +63,8 @@ class PublicMenuController extends Controller
             ->with(['products' => function ($q) {
                 // ajusta a tus columnas reales
                 $q->where('is_active', true)->orderBy('sort_order');
+            }, 'products.variants' => function ($q) {
+                $q->where('is_active', true);
             }])
             ->get();
 
@@ -61,12 +83,16 @@ class PublicMenuController extends Controller
             }
         }
 
+        $openOrder = $this->openOrder($business->id, $table?->id);
+
         return view('public.menu.index', [
             'business'   => $business,
             'categories' => $categories,
             'table'      => $table,
             'tableLabel' => $tableLabel,
             'scanToken'  => $this->buildScanToken($business->id, $table?->id),
+            'openOrderTotal' => $openOrder?->total,
+            'openOrderId' => $openOrder?->id,
         ]);
     }
 
@@ -84,6 +110,8 @@ class PublicMenuController extends Controller
         $categories = $business->categories()
             ->with(['products' => function ($q) {
                 $q->where('is_active', true)->orderBy('category_id');
+            }, 'products.variants' => function ($q) {
+                $q->where('is_active', true);
             }])
             ->get();
 
@@ -91,12 +119,16 @@ class PublicMenuController extends Controller
             ?? $table->name
             ?? ('Mesa ' . $table->id);
 
+        $openOrder = $this->openOrder($business->id, $table->id);
+
         return view('public.menu.index', [
             'business'   => $business,
             'categories' => $categories,
             'table'      => $table,
             'tableLabel' => $tableLabel,
             'scanToken'  => $this->buildScanToken($business->id, $table->id),
+            'openOrderTotal' => $openOrder?->total,
+            'openOrderId' => $openOrder?->id,
         ]);
     }
 }

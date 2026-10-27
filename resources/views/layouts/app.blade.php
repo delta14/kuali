@@ -149,7 +149,7 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                let lastSeenOrderId = 0;
+                let lastSince = null;
                 const checkIntervalMs = 8000; // 8 segundos
                 const container = document.getElementById('k-notification-container');
                 const checkUrl = "{{ route('orders.check-new') }}";
@@ -201,7 +201,7 @@
                             <i class="ri-notification-3-line"></i>
                         </div>
                         <div class="k-toast-body">
-                            <h4 class="k-toast-header">¡Nuevo Pedido Móvil!</h4>
+                            <h4 class="k-toast-header">${order.is_new ? '¡Nuevo Pedido Móvil!' : '¡Se agregó a la cuenta!'}</h4>
                             <p class="k-toast-desc">
                                 <strong>${order.table_name}</strong> • ${order.customer_name}<br>
                                 Total: $${Number(order.total).toFixed(2)}
@@ -250,31 +250,36 @@
                 // Poller principal
                 async function pollNewOrders() {
                     try {
-                        const response = await fetch(`${checkUrl}?last_id=${lastSeenOrderId}`, {
+                        const url = lastSince
+                            ? `${checkUrl}?since=${encodeURIComponent(lastSince)}`
+                            : checkUrl;
+
+                        const response = await fetch(url, {
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest',
                                 'Accept': 'application/json'
                             }
                         });
-                        
+
                         if (!response.ok) return;
 
                         const data = await response.json();
                         if (data && data.ok) {
-                            // Si es la inicialización
-                            if (lastSeenOrderId === 0) {
-                                lastSeenOrderId = data.last_id;
+                            // Si es la inicialización, sólo fijamos el punto de partida
+                            if (lastSince === null) {
+                                lastSince = data.since;
                                 return;
                             }
 
-                            // Si hay órdenes nuevas y no es la inicialización, notificarlas
+                            // Pedidos nuevos o mesas con cuenta abierta a las que se
+                            // les agregó algo desde el QR: notificamos ambos casos.
                             if (data.has_new && data.orders && data.orders.length > 0) {
                                 data.orders.forEach(order => {
                                     showOrderToast(order);
                                 });
                             }
-                            
-                            lastSeenOrderId = data.last_id;
+
+                            lastSince = data.since;
                         }
                     } catch (error) {
                         console.error('Error polling for new orders:', error);

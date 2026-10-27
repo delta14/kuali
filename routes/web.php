@@ -14,7 +14,9 @@ use App\Http\Controllers\Business\ReportController;
 use App\Http\Controllers\Business\SettingsController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
 });
 
 /*
@@ -36,6 +38,10 @@ Route::middleware('throttle:60,1')->group(function () {
     // Menú por QR de mesa: /qr/{token}
     Route::get('/qr/{token}', [PublicMenuController::class, 'showByTable'])
         ->name('public.menu.table');
+
+    // Estado de un pedido propio (para detectar en vivo cuando se cierra la cuenta)
+    Route::get('/m/orders/{order}/status', [PublicOrderController::class, 'status'])
+        ->name('public.orders.status');
 });
 
 // Guardar pedido desde menú público: límite más estricto para frenar spam de pedidos
@@ -54,9 +60,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('categories', CategoryController::class)->except(['show']);
-    Route::resource('products', ProductController::class)->except(['show']);
-    Route::resource('tables', TableController::class)->except(['show']);
+    Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit']);
+    Route::resource('products', ProductController::class)->except(['show', 'create', 'edit']);
+    Route::resource('tables', TableController::class)->except(['show', 'create', 'edit']);
 
     // Acciones adicionales de mesas (QR / flyer)
     Route::get('tables/{table}/download-qr', [TableController::class, 'downloadQr'])
@@ -100,6 +106,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Actualizar estado (no POS, lo que ya tenías)
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])
         ->name('orders.update-status')
+        ->whereNumber('order');
+
+    // Asignar / cambiar la mesa de un pedido (p.ej. pedido en barra que se sienta después)
+    Route::patch('/orders/{order}/table', [OrderController::class, 'assignTable'])
+        ->name('orders.assign-table')
         ->whereNumber('order');
 
     // Marcar como completado (versión vieja por PATCH, la dejamos igual)
