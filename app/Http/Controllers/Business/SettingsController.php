@@ -3,11 +3,20 @@
 namespace App\Http\Controllers\Business;
 
 use App\Http\Controllers\Controller;
+use App\Models\Business;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class SettingsController extends Controller
 {
+    protected function currentBusiness(Request $request): ?Business
+    {
+        return $request->user()->businesses()
+            ->wherePivot('is_active', true)
+            ->orderBy('business_user.created_at')
+            ->first();
+    }
+
     public function edit(Request $request)
     {
         $user = $request->user();
@@ -16,7 +25,7 @@ class SettingsController extends Controller
             return redirect()->route('super.dashboard');
         }
 
-        $business = $user->businesses()->first();
+        $business = $this->currentBusiness($request);
 
         if (!$business) {
             return redirect()->route('dashboard');
@@ -29,8 +38,7 @@ class SettingsController extends Controller
 
     public function update(Request $request)
     {
-        $user = $request->user();
-        $business = $user->businesses()->first();
+        $business = $this->currentBusiness($request);
 
         abort_unless($business, 404);
 

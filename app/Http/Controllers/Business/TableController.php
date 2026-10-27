@@ -44,12 +44,16 @@ class TableController extends Controller
 
     public function store(Request $request)
     {
-        $businessId = $request->user()->currentBusiness->business_id;
+        // $request->user()->currentBusiness devuelve un Business (su PK es
+        // "id", no "business_id"); usamos el helper ya correcto de este
+        // controller para no depender de que el trait de negocio rellene
+        // business_id en silencio al guardar.
+        $businessId = $this->currentBusiness($request)->id;
 
         $table = new Table();
         $table->business_id = $businessId;
         $table->name        = $request->name;
-        $table->code        = Str::slug($request->name);
+        $table->code        = $this->uniqueCodeFor($businessId, $request->name);
         $table->capacity    = $request->capacity;
         $table->is_active   = $request->boolean('is_active', true);
         $table->qr_token    = Str::uuid(); // token único
@@ -78,6 +82,26 @@ class TableController extends Controller
 
         return redirect()->route('tables.index')
             ->with('success', 'Mesa creada correctamente.');
+    }
+
+    /**
+     * "code" sólo es único por negocio (p.ej. dos negocios distintos pueden
+     * tener ambos una "Mesa 1"), así que generamos el slug base y le
+     * agregamos un sufijo -2, -3... si ya existe otra mesa con ese código
+     * dentro de este mismo negocio.
+     */
+    protected function uniqueCodeFor(int $businessId, string $name): string
+    {
+        $base = Str::slug($name);
+        $code = $base;
+        $i = 2;
+
+        while (Table::where('business_id', $businessId)->where('code', $code)->exists()) {
+            $code = "{$base}-{$i}";
+            $i++;
+        }
+
+        return $code;
     }
 
     public function update(Request $request, Table $table)

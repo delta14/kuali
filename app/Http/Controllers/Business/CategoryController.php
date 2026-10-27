@@ -19,16 +19,13 @@ class CategoryController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Si algún día agregas current_business_id al usuario, lo usamos:
-        if ($user->current_business_id ?? false) {
-            $business = Business::find($user->current_business_id);
-        } else {
-            // Primer negocio al que esté vinculado
-            $business = $user->businesses()->first();
-        }
+        $business = $user->businesses()
+            ->wherePivot('is_active', true)
+            ->orderBy('business_user.created_at')
+            ->first();
 
         if (!$business) {
-            abort(403, 'No tienes un comercio asignado.');
+            abort(403, 'No tienes un comercio asignado o activo.');
         }
 
         return $business;
