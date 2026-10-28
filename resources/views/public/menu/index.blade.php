@@ -115,7 +115,7 @@
                                 <article class="pm-card" data-product-name="{{ Str::lower($product->name) }}">
                                     <div class="pm-card-img">
                                         @if ($product->image_path)
-                                            <img src="{{ asset('storage/' . $product->image_path) }}"
+                                            <img src="{{ $product->image_url }}"
                                                 alt="{{ $product->name }}">
                                         @else
                                             <div class="pm-dish-placeholder" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(88,28,87,0.04) 0%, rgba(88,28,87,0.08) 100%); color:var(--pm-primary); font-size:2rem;">
@@ -153,7 +153,7 @@
                                                 data-id="{{ $product->id }}" data-name="{{ $product->name }}"
                                                 data-price="{{ $product->price }}"
                                                 data-description="{{ $product->description }}"
-                                                data-image="{{ $product->image_path ? asset('storage/' . $product->image_path) : '' }}"
+                                                data-image="{{ $product->image_url ?? '' }}"
                                                 data-variants="{{ $product->variants->map(fn($v) => ['id' => $v->id, 'name' => $v->name, 'price' => (float) $v->price])->toJson() }}">
                                                 <i class="ri-add-line"></i>
                                             </button>

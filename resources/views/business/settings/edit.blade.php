@@ -68,7 +68,7 @@
         <div class="k-field">
             <label class="k-label">Logo del comercio</label>
             <div class="bs-settings-upload">
-                <img id="bs_logo_preview" src="{{ $business->logo_path ? asset('storage/' . $business->logo_path) : '' }}"
+                <img id="bs_logo_preview" src="{{ $business->logo_url ?? '' }}"
                     alt="Logo actual" class="bs-settings-preview" style="{{ $business->logo_path ? '' : 'display:none;' }}">
                 <input type="file" name="logo" class="k-input" accept="image/*" id="bs_logo_input">
             </div>
@@ -80,7 +80,7 @@
         <div class="k-field">
             <label class="k-label">Imagen de fondo del flyer</label>
             <div class="bs-settings-upload">
-                <img id="bs_flyerbg_preview" src="{{ $business->flyer_bg_path ? asset('storage/' . $business->flyer_bg_path) : '' }}"
+                <img id="bs_flyerbg_preview" src="{{ $business->flyer_bg_url ?? '' }}"
                     alt="Fondo actual" class="bs-settings-preview" style="{{ $business->flyer_bg_path ? '' : 'display:none;' }}">
                 <input type="file" name="flyer_bg" class="k-input" accept="image/*" id="bs_flyerbg_input">
             </div>

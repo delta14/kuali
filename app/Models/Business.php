@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage;
 
 class Business extends Model
 {
@@ -55,6 +57,20 @@ class Business extends Model
     public function tables()
     {
         return $this->hasMany(Table::class);
+    }
+
+    protected function logoUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->logo_path ? Storage::disk('public')->url($this->logo_path) : null,
+        );
+    }
+
+    protected function flyerBgUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->flyer_bg_path ? Storage::disk('public')->url($this->flyer_bg_path) : null,
+        );
     }
 
 }

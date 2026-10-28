@@ -74,7 +74,7 @@
                                 {{-- Imagen del producto --}}
                                 <div class="k-pos-dish-photo k-pos-product-thumb">
                                     @if ($product->image_path)
-                                        <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}">
+                                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}">
                                     @else
                                         <div class="k-pos-dish-placeholder k-pos-product-thumb-placeholder">
                                             @php

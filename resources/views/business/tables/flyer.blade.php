@@ -15,7 +15,7 @@
 
     <style>
         :root {
-            --flyer-bg-image: url('{{ $business->flyer_bg_path ? asset('storage/' . $business->flyer_bg_path) : asset('images/flyer/delifondo01.jpg') }}');
+            --flyer-bg-image: url('{{ $business->flyer_bg_url ?? asset('images/flyer/delifondo01.jpg') }}');
         }
     </style>
     <link rel="stylesheet" href="{{ asset('css/pages/flyer.css') }}">
@@ -52,7 +52,7 @@
                 <div class="brand-section">
                     <div class="brand-logo-ring">
                         @if ($business->logo_path)
-                            <img src="{{ asset('storage/' . $business->logo_path) }}" alt="Logo {{ $business->name }}">
+                            <img src="{{ $business->logo_url }}" alt="Logo {{ $business->name }}">
                         @else
                             <i class="ri-restaurant-line"></i>
                         @endif
@@ -70,7 +70,7 @@
                 <div class="flyer-left">
                     <div class="qr-panel-logo">
                         @if ($business->logo_path)
-                            <img src="{{ asset('storage/' . $business->logo_path) }}" alt="Logo {{ $business->name }}">
+                            <img src="{{ $business->logo_url }}" alt="Logo {{ $business->name }}">
                         @else
                             <i class="ri-restaurant-line"></i>
                         @endif
@@ -89,7 +89,7 @@
                         <div class="qr-feature-circle">
                             <div class="qr-feature-inner">
                                 @if ($table->qr_path)
-                                    <img src="{{ asset('storage/' . $table->qr_path) }}" alt="QR Mesa {{ $table->name }}">
+                                    <img src="{{ $table->qr_url }}" alt="QR Mesa {{ $table->name }}">
                                 @else
                                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #6b7280; font-size: 0.75rem; text-align:center;">
                                         <i class="ri-qr-code-line" style="font-size: 2.2rem; margin-bottom: 6px;"></i>
@@ -100,7 +100,7 @@
 
                             <div class="qr-feature-logo-badge">
                                 @if ($business->logo_path)
-                                    <img src="{{ asset('storage/' . $business->logo_path) }}" alt="Logo {{ $business->name }}">
+                                    <img src="{{ $business->logo_url }}" alt="Logo {{ $business->name }}">
                                 @else
                                     <i class="ri-restaurant-line"></i>
                                 @endif
@@ -125,7 +125,7 @@
                         <div class="brand-section">
                             <div class="brand-logo-ring">
                                 @if ($business->logo_path)
-                                    <img src="{{ asset('storage/' . $business->logo_path) }}" alt="Logo {{ $business->name }}">
+                                    <img src="{{ $business->logo_url }}" alt="Logo {{ $business->name }}">
                                 @else
                                     <i class="ri-restaurant-line"></i>
                                 @endif

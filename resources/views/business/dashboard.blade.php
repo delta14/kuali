@@ -222,7 +222,7 @@
                                 <div class="k-premium-dish-row">
                                     {{-- Miniatura foto o inicial --}}
                                     @if($dish->product->image_path)
-                                        <img src="{{ asset('storage/' . $dish->product->image_path) }}" class="k-premium-dish-img" alt="{{ $dish->product->name }}">
+                                        <img src="{{ $dish->product->image_url }}" class="k-premium-dish-img" alt="{{ $dish->product->name }}">
                                     @else
                                         <div class="k-premium-dish-fallback">
                                             {{ mb_substr($dish->product->name, 0, 1) }}

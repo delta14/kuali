@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasBusinessScope;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Table extends Model
 {
@@ -26,5 +28,12 @@ class Table extends Model
     public function scopeForBusiness($query, $businessId)
     {
         return $query->where('business_id', $businessId);
+    }
+
+    protected function qrUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->qr_path ? Storage::disk('public')->url($this->qr_path) : null,
+        );
     }
 }

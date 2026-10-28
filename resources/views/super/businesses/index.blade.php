@@ -116,8 +116,8 @@
                                         data-slug="{{ $business->slug }}" data-email="{{ $business->email_contact }}"
                                         data-phone="{{ $business->phone }}" data-address="{{ $business->address }}"
                                         data-plan="{{ $business->plan }}"
-                                        data-logo="{{ $business->logo_path ? asset('storage/' . $business->logo_path) : '' }}"
-                                        data-flyerbg="{{ $business->flyer_bg_path ? asset('storage/' . $business->flyer_bg_path) : '' }}"
+                                        data-logo="{{ $business->logo_url ?? '' }}"
+                                        data-flyerbg="{{ $business->flyer_bg_url ?? '' }}"
                                         data-active="{{ $business->is_active ? '1' : '0' }}"
                                         data-admin-name="{{ $mainAdmin->name ?? '' }}"
                                         data-admin-email="{{ $mainAdmin->email ?? '' }}">

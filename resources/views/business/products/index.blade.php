@@ -89,7 +89,7 @@
                             {{-- Imagen del producto --}}
                             <td data-label="Imagen" style="padding: 0.85rem 1rem;">
                                 @if ($product->image_path)
-                                    <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}"
+                                    <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
                                         class="k-premium-dish-img" style="width:44px; height:44px; border-radius:12px; object-fit:cover; display: block; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
                                 @else
                                     <div class="k-premium-dish-fallback" style="width:44px; height:44px; border-radius:12px; background: rgba(99, 102, 241, 0.05); color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; font-weight: 600;">
@@ -162,7 +162,7 @@
                                             data-price="{{ $product->price }}"
                                             data-description="{{ $product->description }}"
                                             data-active="{{ $product->is_active ? '1' : '0' }}"
-                                            data-image-url="{{ $product->image_path ? asset('storage/' . $product->image_path) : '' }}"
+                                            data-image-url="{{ $product->image_url ?? '' }}"
                                             data-variants="{{ $product->variants->map(fn($v) => ['name' => $v->name, 'price' => $v->price])->toJson() }}"
                                             style="width: 100%; border: none; background: transparent; color: #e0ddff; padding: 6px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; text-align: left;">
                                             <i class="ri-edit-line" style="font-size: 1rem;"></i>

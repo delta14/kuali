@@ -77,7 +77,7 @@
                 {{-- QR Central Interactivo --}}
                 <div style="background: #fafafa; border: 1px solid #f3f4f6; border-radius: 16px; padding: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; position: relative;">
                     @if ($table->qr_path)
-                        <img src="{{ asset('storage/' . $table->qr_path) }}" alt="QR {{ $table->name }}" style="width: 140px; height: 140px; object-fit: contain; background: #fff; padding: 0.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+                        <img src="{{ $table->qr_url }}" alt="QR {{ $table->name }}" style="width: 140px; height: 140px; object-fit: contain; background: #fff; padding: 0.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
                     @else
                         <div style="width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 0.85rem; font-weight: 500; flex-direction: column; gap: 0.4rem;">
                             <i class="ri-qr-code-line" style="font-size: 2.2rem; color: #d1d5db;"></i>
